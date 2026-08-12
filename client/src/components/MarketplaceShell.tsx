@@ -2,12 +2,14 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 import { Bell, Bookmark, Compass, Heart, Menu, MessageCircle, PlaySquare, ShoppingBag, UserRound, X } from "lucide-react";
 import { useState } from "react";
+import { useLiteMode } from "@/hooks/useLiteMode";
 import { Link, useLocation } from "wouter";
 
 export function MarketplaceShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [location] = useLocation();
   const { profile, user, signOut } = useSupabaseAuth();
+  const { liteMode, online, toggleLiteMode } = useLiteMode();
   const isSeller = profile?.role === "seller" || profile?.role === "admin";
   const dashboardHref = profile?.role === "admin" ? "/admin" : isSeller ? "/seller" : "/account";
   const nav = [
@@ -29,7 +31,7 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
           <nav className="desktop-nav" aria-label="Primary navigation">
             {nav.map(([label, href]) => <Link key={href} href={href} className={location === href ? "is-active" : ""}>{label}</Link>)}
           </nav>
-          <div className="site-header__actions">
+          <div className="site-header__actions"><button type="button" className={`lite-toggle ${liteMode ? "is-active" : ""}`} onClick={toggleLiteMode} aria-pressed={liteMode} title="Reduce video, image, and autoplay data use">{online ? "Online" : "Offline"} · {liteMode ? "Lite" : "Full"}</button>
             <Link href="/cart" className="icon-action" aria-label="Cart"><ShoppingBag size={19} /></Link>
             {user ? <>
               <Link href="/account" className="icon-action" aria-label="Notifications"><Bell size={19} /></Link>

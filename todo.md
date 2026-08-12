@@ -384,3 +384,12 @@
 - [x] Upgrade Reels into a TikTok-style vertical snap scroller with muted autoplay, next/previous navigation, and controls
 - [x] Add profile/Reel upload persistence and protected/public storage regression contracts
 - [x] Run strict TypeScript, full tests, production build, and responsive visual verification
+
+## Marketplace, AI, messaging, offline-lite, and branding upgrade
+
+- [x] Restrict beat upload to main beat file, cover picture, title, and truthful free/paid playback-download rules
+- [x] Make the AI assistant operational through server-side provider configuration and actionable error states
+- [x] Add a message action to user profiles and support authenticated rich message attachments
+- [x] Add offline lite/data-saver behavior while keeping uploads and heavy work online-only
+- [x] Apply the provided BeatBox logo to favicon, browser metadata, PWA manifest, and app branding
+- [x] Add regression coverage and run strict checks, tests, build, and responsive verification

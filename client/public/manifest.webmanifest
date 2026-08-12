@@ -1,0 +1,15 @@
+{
+  "name": "BeatBox — Liberia's Beat Marketplace",
+  "short_name": "BeatBox",
+  "description": "Discover, preview, license, and sell original beats and creator content.",
+  "start_url": "/explore",
+  "display": "standalone",
+  "background_color": "#111217",
+  "theme_color": "#111217",
+  "icons": [{
+    "src": "/manus-storage/beatbox-logo-2026_684ee3ef.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any maskable"
+  }]
+}

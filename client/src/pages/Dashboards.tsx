@@ -55,10 +55,9 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
   const { user, profile } = useSupabaseAuth();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", genre: "", mood: "", bpm: "", musical_key: "", tags: "", price: "", is_free: false });
+  const [form, setForm] = useState({ title: "", price: "", is_free: false });
   const [cover, setCover] = useState<File | null>(null);
-  const [preview, setPreview] = useState<File | null>(null);
-  const [master, setMaster] = useState<File | null>(null);
+  const [beatFile, setBeatFile] = useState<File | null>(null);
 
   const upload = async (bucket: string, file: File) => {
     if (!user) throw new Error("Sign in required.");
@@ -70,27 +69,24 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!user || !cover || !preview || !master) {
-      setMessage("Cover art, a watermarked preview, and a private master file are all required.");
+    if (!user || !cover || !beatFile || !form.title.trim()) {
+      setMessage("A title, cover picture, and main beat file are required.");
       return;
     }
     setBusy(true);
     setMessage(null);
     try {
-      const seconds = await getAudioDuration(preview);
-      if (!Number.isFinite(seconds) || seconds < 30 || seconds > 60) {
-        throw new Error("Watermarked previews must be between 30 and 60 seconds long.");
-      }
-      const [coverPath, previewPath, masterPath] = await Promise.all([
-        upload("beat-covers", cover), upload("beat-previews", preview), upload("beat-masters", master),
+      if (!navigator.onLine) throw new Error("Uploading a beat requires an internet connection.");
+      if (beatFile.size > 200 * 1024 * 1024) throw new Error("Beat files must be 200 MB or smaller.");
+      const [coverPath, mainBeatPath] = await Promise.all([
+        upload("beat-covers", cover), upload("beat-masters", beatFile),
       ]);
       const slug = `${form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}-${Date.now().toString(36)}`;
       const price = form.is_free ? 0 : Number(form.price);
       const { data, error } = await supabase.from("beats").insert({
-        seller_id: user.id, title: form.title, slug, description: form.description || null, genre: form.genre || null,
-        mood: form.mood || null, bpm: Number(form.bpm) || null, musical_key: form.musical_key || null, price,
+        seller_id: user.id, title: form.title.trim(), slug, price,
         is_free: form.is_free, producer: profile?.display_name || "BeatBox producer", cover_image_url: coverPath,
-        preview_url: previewPath, master_url: masterPath, status: "published", published_at: new Date().toISOString(),
+        preview_url: mainBeatPath, master_url: mainBeatPath, status: "published", published_at: new Date().toISOString(),
       }).select("id").single();
       if (error) throw error;
       if (data) {
@@ -100,13 +96,8 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
           { beat_id: data.id, license_code: "premium", name: "Premium", price: base ? base * 2 : 0, terms: "Extended non-exclusive use under the producer’s displayed terms." },
           { beat_id: data.id, license_code: "exclusive", name: "Exclusive", price: base ? base * 5 : 0, terms: "Exclusive terms to be confirmed with the producer." },
         ]);
-        const tags = Array.from(new Set(form.tags.split(",").map(tag => tag.trim()).filter(Boolean))).slice(0, 10);
-        if (tags.length) {
-          const { error: tagsError } = await supabase.rpc("attach_tags_to_beat", { p_beat_id: data.id, p_tags: tags });
-          if (tagsError) throw tagsError;
-        }
       }
-      setMessage("Beat published. Your master remains private; only the preview is available for listening.");
+      setMessage(form.is_free ? "Beat published. It can be played and downloaded for free." : "Beat published. It can be played, but downloads require verified entitlement.");
       onDone();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to publish the beat.");
@@ -115,7 +106,7 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
     }
   };
 
-  return <form className="dashboard-panel upload-form" onSubmit={submit}><h2>Upload a beat</h2><p>All three files are required: public cover, a <strong>watermarked 30–60 second preview</strong>, and a private full-resolution master. BeatBox keeps the master in a private bucket.</p><div className="field-grid"><label>Beat title<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required maxLength={120} /></label><label>Genre<input value={form.genre} onChange={e => setForm({ ...form, genre: e.target.value })} required /></label><label>Mood<input value={form.mood} onChange={e => setForm({ ...form, mood: e.target.value })} /></label><label>BPM<input type="number" min="40" max="260" value={form.bpm} onChange={e => setForm({ ...form, bpm: e.target.value })} /></label><label>Key<input value={form.musical_key} onChange={e => setForm({ ...form, musical_key: e.target.value })} placeholder="e.g. F minor" /></label><label>Price (USD)<input type="number" min="0" step="0.01" disabled={form.is_free} value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} /></label><label className="field-grid__wide">Tags<input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="Afrobeats, melodic, summer" maxLength={480}/><small>Separate up to 10 search tags with commas.</small></label><label className="field-grid__wide">Description<textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label><label className="checkbox-field"><input type="checkbox" checked={form.is_free} onChange={e => setForm({ ...form, is_free: e.target.checked })} />Offer this beat as a free download</label></div><div className="file-grid"><FileInput label="Cover art" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} /><FileInput label="Watermarked 30–60 second preview" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac" file={preview} setFile={setPreview} /><FileInput label="Private master" accept="audio/mpeg,audio/wav,audio/flac,audio/mp4,audio/aac" file={master} setFile={setMaster} /></div><button className="button" disabled={busy}>{busy && <Loader2 className="spin" size={16} />}<Upload size={16} />Publish beat</button>{message && <p className={message.startsWith("Beat published") ? "form-success" : "form-error"}>{message}</p>}</form>;
+  return <form className="dashboard-panel upload-form" onSubmit={submit}><h2>Upload a beat</h2><p>Upload only the main beat file, cover picture, and title. Free beats can be played and downloaded; paid beats can be played but their download requires verified entitlement.</p><div className="field-grid"><label>Beat title<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required maxLength={120} /></label><label>Price (USD)<input type="number" min="0" step="0.01" disabled={form.is_free} value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} /></label><label className="checkbox-field"><input type="checkbox" checked={form.is_free} onChange={e => setForm({ ...form, is_free: e.target.checked })} />Free download</label></div><div className="file-grid"><FileInput label="Cover picture" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} /><FileInput label="Main beat file" accept="audio/*" file={beatFile} setFile={setBeatFile} /></div><button className="button" disabled={busy}>{busy && <Loader2 className="spin" size={16} />}<Upload size={16} />Publish beat</button>{message && <p className={message.startsWith("Beat published") ? "form-success" : "form-error"}>{message}</p>}</form>;
 }
 function FileInput({label,accept,file,setFile}:{label:string;accept:string;file:File|null;setFile:(file:File|null)=>void}){return <label className="file-input"><Upload size={18}/><b>{label}</b><span>{file?file.name:"Choose a file"}</span><input type="file" accept={accept} onChange={e=>setFile(e.target.files?.[0]||null)} required/></label>}
 function SellerProfileSettings({sellerId}:{sellerId:string}){const[form,setForm]=useState({producer_name:"",whatsapp:"",instagram_url:"",youtube_url:"",soundcloud_url:""});const[message,setMessage]=useState<string|null>(null);useEffect(()=>{if(!sellerId)return;supabase.from("seller_profiles").select("producer_name,whatsapp,instagram_url,youtube_url,soundcloud_url").eq("id",sellerId).maybeSingle().then(({data})=>{if(data)setForm({producer_name:data.producer_name||"",whatsapp:data.whatsapp||"",instagram_url:data.instagram_url||"",youtube_url:data.youtube_url||"",soundcloud_url:data.soundcloud_url||""});});},[sellerId]);const save=async(e:React.FormEvent)=>{e.preventDefault();const payload={id:sellerId,producer_name:form.producer_name.trim(),whatsapp:form.whatsapp.trim()||null,instagram_url:form.instagram_url.trim()||null,youtube_url:form.youtube_url.trim()||null,soundcloud_url:form.soundcloud_url.trim()||null};const{error}=await supabase.from("seller_profiles").upsert(payload,{onConflict:"id"});setMessage(error?error.message:"Public producer profile saved.");};return <form className="dashboard-panel profile-form" onSubmit={save}><h2><Settings2/> Producer profile</h2><p>These optional social links appear on your public BeatBox producer profile. Payment details stay private in the payment instructions below.</p><div className="field-grid"><label>Producer name<input value={form.producer_name} onChange={e=>setForm({...form,producer_name:e.target.value})} required/></label><label>WhatsApp number<input value={form.whatsapp} onChange={e=>setForm({...form,whatsapp:e.target.value})} placeholder="231..."/></label><label>Instagram URL<input type="url" value={form.instagram_url} onChange={e=>setForm({...form,instagram_url:e.target.value})} placeholder="https://instagram.com/..."/></label><label>YouTube URL<input type="url" value={form.youtube_url} onChange={e=>setForm({...form,youtube_url:e.target.value})} placeholder="https://youtube.com/..."/></label><label className="field-grid__wide">SoundCloud URL<input type="url" value={form.soundcloud_url} onChange={e=>setForm({...form,soundcloud_url:e.target.value})} placeholder="https://soundcloud.com/..."/></label></div><button className="button button--small"><Save size={14}/>Save public profile</button>{message&&<p className="form-success">{message}</p>}</form>}

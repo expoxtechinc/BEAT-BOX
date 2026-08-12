@@ -13,7 +13,7 @@ export async function toDisplayBeat(beat: Beat): Promise<Beat> {
     beat.preview_url
       ? externalUrl(beat.preview_url)
         ? Promise.resolve({ data: { signedUrl: beat.preview_url } })
-        : supabase.storage.from("beat-previews").createSignedUrl(beat.preview_url, 60 * 10)
+        : supabase.storage.from(beat.master_url && beat.master_url === beat.preview_url ? "beat-masters" : "beat-previews").createSignedUrl(beat.preview_url, 60 * 10)
       : Promise.resolve({ data: { signedUrl: null } }),
   ]);
 

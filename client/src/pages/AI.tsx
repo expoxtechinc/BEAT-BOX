@@ -10,6 +10,7 @@ export default function AI() {
   const { user, profile, loading } = useSupabaseAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const chat = trpc.ai.chat.useMutation();
+  const health = trpc.ai.health.useQuery(undefined, { staleTime: 30_000 });
 
   if (loading) {
     return <section className="status-page"><div className="loading-dots" aria-label="Loading BeatBox AI" /><p>Preparing your assistant…</p></section>;
@@ -54,6 +55,7 @@ export default function AI() {
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-emerald-500" /> Server-side keys only</div>
         </div>
+        <div className="mb-4 rounded-2xl border border-border/70 bg-card/70 p-4 text-sm text-muted-foreground" role="status"><strong className="text-foreground">AI status:</strong> {health.isLoading ? "checking providers…" : health.data?.enabled ? `${health.data.providers.filter(provider => provider.configured).length} provider(s) configured; fallback order: ${health.data.order.join(" → ")}.` : "AI is disabled in this deployment. Add server-side provider variables in Vercel and redeploy."}</div>
         <AIChatBox
           messages={messages}
           onSendMessage={sendMessage}
