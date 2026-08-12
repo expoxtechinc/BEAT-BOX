@@ -354,3 +354,10 @@
 - [x] Repair the client boot, routing, asset, or deployment configuration causing the blank page
 - [x] Validate mobile and desktop production rendering plus strict checks, tests, and build
 - [x] Publish the repair and document any owner-side Vercel configuration action required
+
+## Supabase SQL and Auth setup continuation
+
+- [ ] Export the ordered Supabase migration SQL into an owner-runnable SQL file
+- [ ] Document exact local, managed-preview, and production Auth redirect URLs and provider settings
+- [ ] Validate the SQL export, setup runbook, strict TypeScript, tests, and production build
+- [ ] Push the latest live blank-page repair and setup artifacts to expoxtechinc/BEAT-BOX

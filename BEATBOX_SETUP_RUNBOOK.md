@@ -30,17 +30,49 @@ In Supabase, create a project or select the production project that will own Bea
 | `SUPABASE_SERVICE_ROLE_KEY` | Optional server-only administrative operations | Server-only; never expose to Vite |
 | `JWT_SECRET` | Server session/signing secret where required | Server-only |
 
-Apply every SQL file under `supabase/migrations/` in filename order using the Supabase SQL Editor, the Supabase CLI, or the owner’s migration pipeline. Apply the pending profile RPC and admin-audit/report-taxonomy migrations in particular. Verify that the connected account has permission to create functions, triggers, indexes, RLS policies, and storage policies before running them.
+Apply `BEATBOX_SUPABASE_MIGRATIONS.sql` from the repository root in the Supabase SQL Editor, or apply the individual files under `supabase/migrations/` in the same dependency order. This export is the exact concatenation of the committed migration files and is intended for an owner-level database session; it is not executed automatically by the application. Take a database backup first, paste the export into a fresh SQL Editor query, run it, and stop immediately on the first SQL error rather than continuing partially. Apply the profile RPC and admin-audit/report-taxonomy migrations in particular. Verify that the connected account has permission to create functions, triggers, indexes, RLS policies, and storage policies before running them.
+
+After execution, run these read-only verification queries in Supabase SQL Editor:
+
+```sql
+select table_schema, table_name
+from information_schema.tables
+where table_schema = 'public'
+  and table_name in ('profiles','beats','listings','orders','payment_requests','notifications','social_posts','comments','messages','reports','creator_analytics','admin_audit_log')
+order by table_name;
+
+select routine_schema, routine_name
+from information_schema.routines
+where routine_schema = 'public'
+  and routine_name in ('ensure_self_profile','register_as_seller','update_my_profile_metadata')
+order by routine_name;
+
+select schemaname, tablename, rowsecurity
+from pg_tables
+where schemaname = 'public'
+order by tablename;
+```
+
+The committed export file is `BEATBOX_SUPABASE_MIGRATIONS.sql`. Do not insert fake users, orders, payments, reviews, ratings, or testimonials.
 
 After migration, verify that the database contains profiles, beats/listings, orders, payment requests, notifications, favorites, social posts, comments, reactions, bookmarks, reposts, follows, blocks, mutes, conversations, messages, reports, creator analytics, advertiser tables, and the audit log. Do not insert fake users, orders, payments, reviews, ratings, or testimonials.
 
 ## 3. Supabase authentication
 
-Under **Authentication → Providers**, enable Email and Google. Configure the production site URL and redirect URLs. At minimum, add the deployed Vercel URL and the local development URL used by the project. The OAuth callback must return to the application’s auth callback route.
+Under **Authentication → URL Configuration**, set the Site URL to the exact production origin, for example `https://sastechorg-beatbox.vercel.app` without a trailing slash. Add these redirect URLs exactly, one per line:
+
+| Environment | Redirect URL | Used for |
+|---|---|---|
+| Production | `https://sastechorg-beatbox.vercel.app/auth/callback` | Email confirmation, Google OAuth, password recovery |
+| Managed preview | `https://beatmarket-zqk4krwh.manus.space/auth/callback` | Managed BeatBox preview, if used for testing |
+| Local Vite | `http://localhost:5173/auth/callback` | Local `pnpm dev` when Vite uses port 5173 |
+| Local managed server | `http://localhost:3000/auth/callback` | Local server when the app is served on port 3000 |
+
+If the Vercel project uses a different production domain, replace the production origin with that exact domain and add both the apex and `www` variant only if both are configured. The application generates these callback paths from `window.location.origin`: Google and email signup use `/auth/callback`; password recovery uses `/auth/callback?mode=recovery`. Add the base `/auth/callback` URL to Supabase’s allow-list; query-string variants are covered by the base callback route. Under **Authentication → Providers**, enable Email and Google. The OAuth callback that Google itself receives is the Supabase callback shown in the Google provider panel, not the BeatBox `/auth/callback` URL.
 
 For email/password authentication, configure SMTP or Supabase’s email provider, set the confirmation URL to the production site, and test signup, email confirmation, login, logout, password recovery, and session refresh.
 
-For Google OAuth, create a Google Cloud OAuth web client. Use the Supabase-provided callback URL as the Google authorized redirect URI. Add the client ID and client secret to Supabase Authentication → Providers, then add the Vercel production URL and local URL to the authorized origins. Test Google signup and returning-user login in a private browser window.
+For Google OAuth, create a Google Cloud OAuth web client. In Google Cloud, add the Supabase-provided callback URL displayed under Supabase **Authentication → Providers → Google** as the Google authorized redirect URI. Add `https://sastechorg-beatbox.vercel.app` and `http://localhost:5173` as authorized JavaScript origins, plus the managed preview origin only if you test OAuth there. Copy the Google client ID and client secret into Supabase’s Google provider settings, save, and test signup and returning-user login in a private browser window. Do not put Google secrets in Vercel client variables.
 
 For phone OTP, enable the Supabase phone provider and configure the required SMS provider. Test country-code formatting, OTP request, invalid OTP, expired OTP, successful verification, logout, and re-login. Phone auth cannot be validated fully until an owner configures a real SMS provider.
 
@@ -114,7 +146,13 @@ Run the following in order after Vercel deploys the `main` branch:
 11. Test AI health and authenticated chat with valid provider configuration and at least one fallback provider.
 12. Review Vercel runtime logs and Supabase Auth, Database, Storage, and Edge Function logs for errors.
 
-## 9. Local validation commands
+## 9. Exact SQL export and Auth activation checklist
+
+The repository now includes `BEATBOX_SUPABASE_MIGRATIONS.sql`, which is the owner-runnable SQL export. Use the Supabase dashboard’s **SQL Editor → New query**, paste the file contents, and execute it with a project owner session. If the dashboard rejects a statement for insufficient privileges, do not weaken the SQL or disable RLS; reconnect with the project owner or use the approved Supabase migration pipeline. After execution, run the verification queries in Section 2 and confirm that no migration stopped halfway.
+
+For Auth, first configure the Supabase Site URL and redirect allow-list, then enable Email, Google, and optionally Phone. In Vercel, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for Preview and Production, redeploy, open `/auth`, create an email account, follow the confirmation link, test Google, and test password recovery. The email and Google flows must return to `/auth/callback`; recovery may include `?mode=recovery`. Phone OTP additionally requires a real SMS provider and cannot be considered active until a real phone receives a code.
+
+## 10. Local validation commands
 
 Run these commands before every production push:
 
@@ -127,10 +165,10 @@ pnpm build
 
 A successful local build does not prove that owner-controlled Supabase migrations, OAuth providers, SMS, storage policies, Vercel variables, or AI credentials are configured. Those must be verified in the production accounts.
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 If `/api` returns the SPA shell or a 404, inspect `vercel.json` and ensure API routing precedes the filesystem and SPA fallback rules. If Google OAuth loops, compare the Google and Supabase callback URLs exactly and confirm the Vercel production URL is configured. If profile updates fail, apply the guarded profile RPC with an owner-level Supabase session. If signed downloads fail, verify private bucket policies, entitlement status, server-side signing configuration, and clock consistency. If AI fails, inspect server logs, verify provider variable names, lower the timeout, and test the fallback provider without exposing credentials.
 
-## 11. Credential hygiene
+## 12. Credential hygiene
 
 Rotate any credential previously pasted into chat, including GitHub tokens and AI/provider keys, before production. Use separate development and production secrets, least-privilege provider keys, branch protection on `main`, GitHub secret scanning, and Vercel encrypted environment variables. Do not use customer reviews, ratings, testimonials, or demo payment records as seeded data.
