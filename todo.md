@@ -375,3 +375,12 @@
 - [x] Verify the reported Vercel TypeScript errors are absent from the current clean-install check
 - [x] Add regression coverage for the Vercel build warning and push the repaired source
 - [x] Configure Vercel to run `pnpm check` before `pnpm build`, preventing deployments from masking TypeScript errors
+
+## Profile and Reels creator upgrade
+
+- [x] Add a protected user profile page with editable avatar upload and profile summary
+- [x] Show the authenticated user’s saved beats and saved marketplace items with truthful empty/loading/error states
+- [x] Add authenticated Reel upload and publish flow using the public social-media bucket only
+- [x] Upgrade Reels into a TikTok-style vertical snap scroller with muted autoplay, next/previous navigation, and controls
+- [x] Add profile/Reel upload persistence and protected/public storage regression contracts
+- [x] Run strict TypeScript, full tests, production build, and responsive visual verification
