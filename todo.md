@@ -402,11 +402,11 @@
 
 ## Reel compression, thumbnails, and lite AI upgrade
 
-- [ ] Add client-side Reel video compression before upload with truthful fallback when browser codecs are unavailable
-- [ ] Generate and upload an automatic Reel thumbnail from the video’s first usable frame
-- [ ] Verify all configured AI provider variables are consumed server-side without exposing secrets
-- [ ] Make AI lite/offline behavior truthful with cached help/status and clear online-only response states
-- [ ] Add media/AI regression coverage and run strict checks, tests, production build, and responsive verification
+- [x] Add client-side Reel video compression before upload with truthful fallback when browser codecs are unavailable
+- [x] Generate and upload an automatic Reel thumbnail from the video’s first usable frame
+- [x] Verify all configured AI provider variables are consumed server-side without exposing secrets
+- [x] Make AI lite/offline behavior truthful with cached help/status and clear online-only response states
+- [x] Add media/AI regression coverage and run strict checks, tests, production build, and responsive verification
 
 ## Inherited session media and AI completion
 
