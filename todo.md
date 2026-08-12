@@ -399,3 +399,21 @@
 - [x] Add resumable/chunk-aware upload support with visible progress and retry/resume state for large beat, Reel, avatar, and message media files
 - [x] Add a clear Reel upload icon/action in navigation and relevant creator screens
 - [x] Add interruption/resume regression coverage and run strict checks, full tests, production build, and responsive verification
+
+## Reel compression, thumbnails, and lite AI upgrade
+
+- [ ] Add client-side Reel video compression before upload with truthful fallback when browser codecs are unavailable
+- [ ] Generate and upload an automatic Reel thumbnail from the video’s first usable frame
+- [ ] Verify all configured AI provider variables are consumed server-side without exposing secrets
+- [ ] Make AI lite/offline behavior truthful with cached help/status and clear online-only response states
+- [ ] Add media/AI regression coverage and run strict checks, tests, production build, and responsive verification
+
+## Inherited session media and AI completion
+
+- [x] Integrate client-side Reel compression and automatic first-frame thumbnail preparation into the upload flow
+- [x] Persist Reel thumbnails in social-media storage and social_posts.thumbnail_path, then render them as video posters
+- [x] Refine AI lite/offline mode with truthful network status and safe cached help
+- [x] Verify AI provider fallback consumes server-side Vercel variables without exposing credentials
+- [x] Add or update regression tests for Reel preparation contracts and AI provider configuration/offline behavior
+- [x] Run the full Vitest suite, strict TypeScript check, and production build
+- [ ] Synchronize the final source and deployment documentation to expoxtechinc/BEAT-BOX

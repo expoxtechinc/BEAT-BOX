@@ -132,6 +132,15 @@ export const providers: ProviderDescriptor[] = [
   { name: "manus", call: callManus },
 ];
 
+const isProviderConfigured = (name: ProviderName) => name === "gemini"
+  ? Boolean(process.env.GEMINI_API_KEY)
+  : name === "groq"
+    ? Boolean(process.env.GROQ_API_KEY)
+    : name === "openrouter"
+      ? Boolean(process.env.OPENROUTER_API_KEY)
+      : Boolean(ENV.forgeApiKey);
+
+const configuredProviders = () => providers.filter(provider => isProviderConfigured(provider.name));
 const maxAttemptsPerProvider = 2;
 
 export async function routeWithFallback(
@@ -161,8 +170,10 @@ export const aiRouter = router({
     if (!enabled()) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BeatBox AI is temporarily disabled." });
     const messages = providerMessages(input.messages, input.context);
     try {
-      const { result } = await routeWithFallback(messages);
-      return { ...result, fallbackUsed: result.provider !== providers[0].name };
+      const availableProviders = configuredProviders();
+      if (!availableProviders.length) throw new Error("No BeatBox AI provider is configured.");
+      const { result } = await routeWithFallback(messages, availableProviders);
+      return { ...result, fallbackUsed: result.provider !== availableProviders[0].name };
     } catch {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "No BeatBox AI provider is available right now." });
     }
@@ -172,7 +183,7 @@ export const aiRouter = router({
     timeoutMs: timeoutMs(),
     maxAttemptsPerProvider,
     order: providers.map(provider => provider.name),
-    providers: providers.map(provider => ({ name: provider.name, configured: provider.name === "gemini" ? Boolean(process.env.GEMINI_API_KEY) : provider.name === "groq" ? Boolean(process.env.GROQ_API_KEY) : provider.name === "openrouter" ? Boolean(process.env.OPENROUTER_API_KEY) : Boolean(ENV.forgeApiKey) })),
+    providers: providers.map(provider => ({ name: provider.name, configured: isProviderConfigured(provider.name) })),
     note: "Provider availability can change because of quotas, outages, or rate limits; requests retry and fail over without exposing keys.",
   })),
 });
