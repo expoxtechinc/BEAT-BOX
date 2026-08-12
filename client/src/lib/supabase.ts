@@ -1,11 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const configuredUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const configuredPublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
-if (!supabaseUrl || !supabasePublishableKey) {
-  throw new Error("BeatBox requires VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
-}
+/**
+ * The public shell must remain renderable when a Vercel project has not yet
+ * received its Supabase build variables. Queries will return their normal
+ * error/empty states until the owner configures these values, but a missing
+ * variable must never blank the entire application at module-import time.
+ */
+export const isSupabaseConfigured = Boolean(configuredUrl && configuredPublishableKey);
+export const supabaseConfigurationMessage = isSupabaseConfigured
+  ? ""
+  : "Supabase is not configured for this deployment. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel, then redeploy.";
+
+const supabaseUrl = configuredUrl || "https://placeholder.supabase.co";
+const supabasePublishableKey = configuredPublishableKey || "beatbox-missing-supabase-key";
 
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {

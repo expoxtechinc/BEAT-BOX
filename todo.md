@@ -347,3 +347,10 @@
 - [x] Synchronize the complete validated source and configuration to expoxtechinc/BEAT-BOX
 - [x] Validate the full application with strict TypeScript, tests, production build, and deployment-file checks
 - [x] Deliver a complete setup runbook for Supabase, authentication, storage, credentials, AI providers, Vercel, and production smoke tests
+
+## Live Vercel blank-page repair
+
+- [x] Diagnose the blank mobile production page at https://sastechorg-beatbox.vercel.app/
+- [x] Repair the client boot, routing, asset, or deployment configuration causing the blank page
+- [x] Validate mobile and desktop production rendering plus strict checks, tests, and build
+- [x] Publish the repair and document any owner-side Vercel configuration action required

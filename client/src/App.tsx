@@ -5,6 +5,7 @@ import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { isSupabaseConfigured, supabaseConfigurationMessage } from "./lib/supabase";
 
 const Home = lazy(() => import("./pages/Home"));
 const Explore = lazy(() => import("@/pages/Explore"));
@@ -85,6 +86,11 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
+          {!isSupabaseConfigured && (
+            <div className="deployment-notice" role="status">
+              <strong>BeatBox setup required.</strong> {supabaseConfigurationMessage}
+            </div>
+          )}
           <Router />
         </TooltipProvider>
       </ThemeProvider>
