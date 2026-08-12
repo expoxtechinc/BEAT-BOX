@@ -7,7 +7,8 @@ const root = process.cwd();
 describe("Vercel production contract", () => {
   it("uses the frozen build and public output directory", () => {
     const config = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
-    expect(config.buildCommand).toBe("pnpm build");
+    expect(config.buildCommand).toContain("pnpm check");
+    expect(config.buildCommand).toContain("pnpm build");
     expect(config.installCommand).toContain("pnpm install --frozen-lockfile");
     expect(config.outputDirectory).toBe("dist/public");
     expect(config.routes).toEqual([

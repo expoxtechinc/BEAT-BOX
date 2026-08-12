@@ -374,3 +374,4 @@
 - [x] Preserve optional analytics through a guarded runtime loader when both analytics variables are configured
 - [x] Verify the reported Vercel TypeScript errors are absent from the current clean-install check
 - [x] Add regression coverage for the Vercel build warning and push the repaired source
+- [x] Configure Vercel to run `pnpm check` before `pnpm build`, preventing deployments from masking TypeScript errors
