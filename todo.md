@@ -357,7 +357,7 @@
 
 ## Supabase SQL and Auth setup continuation
 
-- [ ] Export the ordered Supabase migration SQL into an owner-runnable SQL file
-- [ ] Document exact local, managed-preview, and production Auth redirect URLs and provider settings
-- [ ] Validate the SQL export, setup runbook, strict TypeScript, tests, and production build
-- [ ] Push the latest live blank-page repair and setup artifacts to expoxtechinc/BEAT-BOX
+- [x] Export the ordered Supabase migration SQL into an owner-runnable SQL file
+- [x] Document exact local, managed-preview, and production Auth redirect URLs and provider settings
+- [x] Validate the SQL export, setup runbook, strict TypeScript, tests, and production build
+- [x] Push the latest live blank-page repair and setup artifacts to expoxtechinc/BEAT-BOX
