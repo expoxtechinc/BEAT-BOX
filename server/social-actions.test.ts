@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 const community = readFileSync(`${root}/client/src/pages/Community.tsx`, "utf8");
+const socialActions = readFileSync(`${root}/client/src/components/SocialActions.tsx`, "utf8");
 const marketplace = readFileSync(`${root}/client/src/lib/marketplace.ts`, "utf8");
 const producer = readFileSync(`${root}/client/src/pages/Producer.tsx`, "utf8");
 const socialMigration = readFileSync(`${root}/supabase/migrations/20260812_beatbox_creator_social_commerce_extension.sql`, "utf8");
@@ -50,6 +51,7 @@ describe("social persistence and public-visibility contracts", () => {
     expect(socialMigration).toContain("reported_post_id uuid references public.social_posts");
     expect(community).toContain('from("social_reposts")');
     expect(community).toContain('from("reports")');
+    expect(socialActions).toContain("/messages?share=");
     expect(socialMigration).toContain("reported_post_id");
     expect(notificationMigration).toContain("social_post_like_notification");
     expect(notificationMigration).toContain("social_post_comment_notification");

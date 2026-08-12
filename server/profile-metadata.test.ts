@@ -8,7 +8,7 @@ describe("expanded profile metadata contract", () => {
   const migration = readFileSync(resolve(process.cwd(), "supabase/migrations/20260812_beatbox_platform_expansion.sql"), "utf8");
 
   it("exposes the requested editable metadata fields", () => {
-    for (const field of ["city", "website_url", "profession", "education", "interests"]) {
+    for (const field of ["city", "website_url", "profession", "education", "interests", "cover_url", "social_links", "privacy_settings", "contact_preferences"]) {
       expect(source).toContain(`${field}:`);
       expect(model).toContain(`${field}?`);
       expect(migration).toContain(`add column if not exists ${field}`);
@@ -19,5 +19,6 @@ describe("expanded profile metadata contract", () => {
     expect(source).toContain('supabase.from("profiles").update');
     expect(source).toContain('.eq("id",user.id)');
     expect(source).toContain('supabase.rpc("update_self_profile"');
+    expect(source).toContain("parseJsonObject");
   });
 });
