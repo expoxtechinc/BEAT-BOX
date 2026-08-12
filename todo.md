@@ -417,3 +417,12 @@
 - [x] Add or update regression tests for Reel preparation contracts and AI provider configuration/offline behavior
 - [x] Run the full Vitest suite, strict TypeScript check, and production build
 - [x] Synchronize the final source and deployment documentation to expoxtechinc/BEAT-BOX
+
+## Attached Vercel deployment and feature repair
+
+- [x] Diagnose the attached Vercel build log and confirm whether the deployment actually failed or completed
+- [x] Verify AI server routing and provider readiness in the deployed build
+- [x] Ensure public profile cards expose a working message action for authenticated users
+- [x] Ensure the Reel upload icon is visible in the dashboard/navigation and opens the Reel creator flow
+- [x] Add regression coverage for the repaired AI, profile messaging, and Reel navigation contracts
+- [x] Run tests, strict TypeScript, production build, and synchronize the repair to BEAT-BOX

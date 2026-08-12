@@ -18,6 +18,22 @@ describe("BeatBox media and AI upgrade contracts", () => {
     expect(migration).toContain("thumbnail_path text");
   });
 
+  it("keeps deployment request typing portable and feature entry points discoverable", () => {
+    const cookies = read("server/_core/cookies.ts");
+    const sdk = read("server/_core/sdk.ts");
+    const routers = read("server/routers.ts");
+    const producer = read("client/src/pages/Producer.tsx");
+    const shell = read("client/src/components/MarketplaceShell.tsx");
+    expect(cookies).toContain("CookieRequestLike");
+    expect(cookies).not.toContain('from "express"');
+    expect(sdk).toContain("authenticateRequest(req: CookieRequestLike)");
+    expect(routers).toContain("clearCookie");
+    expect(producer).toContain("/messages?to=");
+    expect(producer).toContain("aria-label={`Message ${name}`}");
+    expect(shell).toContain("/reels#reel-upload");
+    expect(shell).toContain("Upload Reel");
+  });
+
   it("keeps browser offline AI behavior explicit and credential-free", () => {
     const ai = read("client/src/pages/AI.tsx");
     const router = read("server/aiRouter.ts");
