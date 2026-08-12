@@ -8,6 +8,16 @@ import { trpc } from "./lib/trpc";
 import "./index.css";
 
 const queryClient = new QueryClient();
+
+const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined;
+const analyticsWebsiteId = import.meta.env.VITE_ANALYTICS_WEBSITE_ID as string | undefined;
+if (analyticsEndpoint && analyticsWebsiteId && typeof document !== "undefined") {
+  const analyticsScript = document.createElement("script");
+  analyticsScript.defer = true;
+  analyticsScript.src = `${analyticsEndpoint.replace(/\/$/, "")}/umami`;
+  analyticsScript.dataset.websiteId = analyticsWebsiteId;
+  document.head.appendChild(analyticsScript);
+}
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({

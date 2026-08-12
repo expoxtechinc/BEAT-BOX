@@ -361,3 +361,16 @@
 - [x] Document exact local, managed-preview, and production Auth redirect URLs and provider settings
 - [x] Validate the SQL export, setup runbook, strict TypeScript, tests, and production build
 - [x] Push the latest live blank-page repair and setup artifacts to expoxtechinc/BEAT-BOX
+
+## Pasted specification 2 full repair
+
+- [x] Read pasted_content_2.txt and translate every actionable requirement into implementation tasks
+- [x] Audit and repair all repository-side issues identified by pasted_content_2.txt
+- [x] Validate the complete repaired application and synchronize it to expoxtechinc/BEAT-BOX
+
+## Pasted specification 2 deployment repair details
+
+- [x] Remove unresolved Vite analytics placeholders and invalid non-module analytics script from the Vercel production build
+- [x] Preserve optional analytics through a guarded runtime loader when both analytics variables are configured
+- [x] Verify the reported Vercel TypeScript errors are absent from the current clean-install check
+- [x] Add regression coverage for the Vercel build warning and push the repaired source
