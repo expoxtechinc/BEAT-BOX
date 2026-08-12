@@ -393,3 +393,9 @@
 - [x] Add offline lite/data-saver behavior while keeping uploads and heavy work online-only
 - [x] Apply the provided BeatBox logo to favicon, browser metadata, PWA manifest, and app branding
 - [x] Add regression coverage and run strict checks, tests, build, and responsive verification
+
+## Resumable uploads and Reel upload entry
+
+- [x] Add resumable/chunk-aware upload support with visible progress and retry/resume state for large beat, Reel, avatar, and message media files
+- [x] Add a clear Reel upload icon/action in navigation and relevant creator screens
+- [x] Add interruption/resume regression coverage and run strict checks, full tests, production build, and responsive verification

@@ -5,6 +5,7 @@ import { SocialActions } from "@/components/SocialActions";
 import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/lib/supabase";
+import { formatUploadSize, uploadResumable } from "@/lib/resumableUpload";
 import type { SocialPost } from "@/lib/models";
 
 type ReelPost = SocialPost & { reel_id?: string; caption?: string | null; creator_id?: string };
@@ -14,26 +15,29 @@ function ReelUpload({ onPublished }: { onPublished: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
+  const [uploadController, setUploadController] = useState<AbortController | null>(null);
   if (!user) return <div className="reels-upload-note"><Link href="/auth">Sign in</Link> to publish a Reel.</div>;
   const publish = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!file) { setMessage("Choose a video first."); return; }
     if (!file.type.startsWith("video/")) { setMessage("Reels must be video files."); return; }
     if (file.size > 100 * 1024 * 1024) { setMessage("Reels must be 100 MB or smaller."); return; }
-    setBusy(true); setMessage(null);
+    setBusy(true); setUploadProgress(0); setMessage(null);
+    const controller = new AbortController();
+    setUploadController(controller);
     try {
       const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-      const upload = await supabase.storage.from("social-media").upload(path, file, { upsert: false, contentType: file.type });
-      if (upload.error) throw upload.error;
+      await uploadResumable({ bucket: "social-media", objectPath: path, file, signal: controller.signal, onProgress: (percent, uploaded, total) => { setUploadProgress(percent); setMessage(`Uploading ${percent}% · ${formatUploadSize(uploaded)} of ${formatUploadSize(total)} — safe to retry if interrupted.`); } });
       const post = await supabase.from("social_posts").insert({ author_id: user.id, body: caption.trim() || null, media_path: path, media_type: "video", status: "published" }).select("id").single();
       if (post.error || !post.data) throw post.error || new Error("Unable to create the Reel post.");
       const reel = await supabase.from("social_reels").insert({ post_id: post.data.id, creator_id: user.id, caption: caption.trim() || null, status: "published" });
       if (reel.error) throw reel.error;
-      setFile(null); setCaption(""); setMessage("Your Reel is live in the vertical viewer."); onPublished();
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to publish Reel."); } finally { setBusy(false); }
+      setFile(null); setCaption(""); setUploadProgress(100); setMessage("Your Reel is live in the vertical viewer."); onPublished();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to publish Reel. You can retry to resume the upload."); } finally { setBusy(false); setUploadController(null); }
   };
-  return <form className="dashboard-panel reels-upload" onSubmit={publish}><div><p className="eyebrow"><span /> Creator upload</p><h2>Publish a Reel</h2><p className="muted-copy">Upload a short public video. Never upload paid masters or private payment files here.</p></div><label className="file-drop"><Upload size={20} /><span>{file ? file.name : "Choose a video"}</span><input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={event => setFile(event.target.files?.[0] || null)} /></label><textarea value={caption} onChange={event => setCaption(event.target.value)} maxLength={500} placeholder="Add a caption" rows={2} /><button className="button" disabled={busy || !file} type="submit">{busy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Publish Reel</button>{message && <p className={message.includes("live") ? "form-success" : "form-error"} role="status">{message}</p>}</form>;
+  return <form id="reel-upload" className="dashboard-panel reels-upload" onSubmit={publish}><div><p className="eyebrow"><span /> Creator upload</p><h2>Publish a Reel</h2><p className="muted-copy">Upload a short public video. Never upload paid masters or private payment files here.</p></div><label className="file-drop"><Upload size={20} /><span>{file ? file.name : "Choose a video"}</span><input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={event => setFile(event.target.files?.[0] || null)} /></label>{file && <p className="upload-meta">{file.name} · {formatUploadSize(file.size)} · Uploads resume after a network interruption.</p>}<textarea value={caption} onChange={event => setCaption(event.target.value)} maxLength={500} placeholder="Add a caption" rows={2} />{busy && <div className="upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Uploading Reel</span><b>{uploadProgress}%</b></div><progress max="100" value={uploadProgress}>{uploadProgress}%</progress><button className="button button--small" type="button" onClick={() => uploadController?.abort()}>Pause upload</button></div>}<button className="button" disabled={busy || !file} type="submit">{busy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} {busy ? `Uploading ${uploadProgress}%` : "Publish Reel"}</button>{message && <p className={message.includes("live") ? "form-success" : "form-error"} role="status">{message}</p>}</form>;
 }
 
 export default function Reels() {

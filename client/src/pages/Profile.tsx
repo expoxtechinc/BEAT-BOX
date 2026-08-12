@@ -4,6 +4,7 @@ import { Bookmark, Camera, Loader2, Music2, UserRound } from "lucide-react";
 import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/lib/supabase";
+import { formatUploadSize, uploadResumable } from "@/lib/resumableUpload";
 
 type ProfileRow = { id: string; username: string | null; display_name: string | null; bio: string | null; avatar_url: string | null; role: string | null; country: string | null };
 type SavedBeat = { id: string; title: string; content_type: string; price: number | null; currency: string | null; cover_path: string | null; seller_id: string; created_at: string | null };
@@ -15,6 +16,7 @@ export default function Profile() {
   const [savedBeats, setSavedBeats] = useState<SavedBeat[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,10 +52,14 @@ export default function Profile() {
     if (!user) return;
     if (!file.type.startsWith("image/")) { setError("Choose an image file for your avatar."); return; }
     if (file.size > 5 * 1024 * 1024) { setError("Avatar images must be 5 MB or smaller."); return; }
-    setUploading(true); setError(null); setMessage(null);
+    if (!navigator.onLine) { setError("You are offline. Avatar uploads require an internet connection."); return; }
+    setUploading(true); setUploadProgress(0); setError(null); setMessage(null);
     const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-    const upload = await supabase.storage.from("avatars").upload(path, file, { upsert: false, contentType: file.type });
-    if (upload.error) { setError(upload.error.message); setUploading(false); return; }
+    try {
+      await uploadResumable({ bucket: "avatars", objectPath: path, file, onProgress: (percent, uploaded, total) => { setUploadProgress(percent); setMessage(`Uploading avatar ${percent}% · ${formatUploadSize(uploaded)} of ${formatUploadSize(total)}.`); } });
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Avatar upload failed. Retry when online."); setUploading(false); return;
+    }
     const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
     const update = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
     if (update.error) setError(update.error.message);
@@ -70,7 +76,7 @@ export default function Profile() {
     <div className="dashboard-title"><div><p className="eyebrow"><span /> Your BeatBox profile</p><h1>{displayName}</h1><p className="muted-copy">Manage your public identity and keep your saved marketplace sounds close.</p></div><Link className="button button--small" href="/saved"><Bookmark size={15} /> Saved Feed items</Link></div>
     {message && <p className="form-success" role="status">{message}</p>}{error && <p className="form-error" role="alert">{error}</p>}
     <div className="profile-grid">
-      <article className="dashboard-panel profile-card"><div className="profile-avatar-wrap">{profile?.avatar_url ? <img className="profile-avatar" src={profile.avatar_url} alt={`${displayName} avatar`} /> : <div className="profile-avatar profile-avatar--fallback">{initials}</div>}<label className="avatar-upload" htmlFor="avatar-file"><Camera size={15} /> {uploading ? "Uploading…" : "Change avatar"}</label><input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={uploading} onChange={event => { const file = event.target.files?.[0]; if (file) void uploadAvatar(file); event.currentTarget.value = ""; }} /></div><h2>{displayName}</h2><p className="muted-copy">{profile?.bio || "Add a bio from Account settings to tell creators what moves you."}</p><div className="profile-meta"><span>{profile?.role || "listener"}</span>{profile?.country && <span>{profile.country}</span>}<span>{user.email}</span></div><Link className="button button--small" href="/account">Edit profile details</Link></article>
+      <article className="dashboard-panel profile-card"><div className="profile-avatar-wrap">{profile?.avatar_url ? <img className="profile-avatar" src={profile.avatar_url} alt={`${displayName} avatar`} /> : <div className="profile-avatar profile-avatar--fallback">{initials}</div>}<label className="avatar-upload" htmlFor="avatar-file"><Camera size={15} /> {uploading ? `Uploading ${uploadProgress}%…` : "Change avatar"}</label>{uploading && <div className="upload-progress profile-upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Avatar upload</span><b>{uploadProgress}%</b></div><progress max="100" value={uploadProgress}>{uploadProgress}%</progress></div>}<input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={uploading} onChange={event => { const file = event.target.files?.[0]; if (file) void uploadAvatar(file); event.currentTarget.value = ""; }} /></div><h2>{displayName}</h2><p className="muted-copy">{profile?.bio || "Add a bio from Account settings to tell creators what moves you."}</p><div className="profile-meta"><span>{profile?.role || "listener"}</span>{profile?.country && <span>{profile.country}</span>}<span>{user.email}</span></div><Link className="button button--small" href="/account">Edit profile details</Link></article>
       <article className="dashboard-panel profile-saved"><div className="section-heading"><div><p className="eyebrow"><span /> Private collection</p><h2>Saved beats</h2></div><Music2 size={22} /></div>{savedBeats.length ? <div className="profile-beat-list">{savedBeats.map(beat => <Link className="profile-beat" href={`/beats/${beat.id}`} key={beat.id}>{beat.cover_path ? <img src={supabase.storage.from("content-covers").getPublicUrl(beat.cover_path).data.publicUrl} alt="" /> : <div className="profile-beat__placeholder"><Music2 size={20} /></div>}<span><b>{beat.title}</b><small>{beat.content_type} · {beat.price ? `${beat.currency || "USD"} ${beat.price}` : "Free"}</small></span></Link>)}</div> : <div className="empty-featured empty-featured--light"><Bookmark size={28} /><h3>No saved beats yet.</h3><p>Browse the catalog and save beats you want to revisit.</p><Link className="button button--small" href="/catalog">Browse beats</Link></div>}</article>
     </div>
   </div></section>;

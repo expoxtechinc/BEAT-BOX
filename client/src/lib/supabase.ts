@@ -14,7 +14,7 @@ export const supabaseConfigurationMessage = isSupabaseConfigured
   ? ""
   : "Supabase is not configured for this deployment. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel, then redeploy.";
 
-const supabaseUrl = configuredUrl || "https://placeholder.supabase.co";
+export const supabaseUrl = configuredUrl || "https://placeholder.supabase.co";
 const supabasePublishableKey = configuredPublishableKey || "beatbox-missing-supabase-key";
 
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {

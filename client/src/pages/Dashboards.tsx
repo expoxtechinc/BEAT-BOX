@@ -5,6 +5,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { money, requestSecureDownload, toDisplayBeat } from "@/lib/marketplace";
 import type { Beat } from "@/lib/models";
 import { logSupabaseError, supabase } from "@/lib/supabase";
+import { formatUploadSize, uploadResumable } from "@/lib/resumableUpload";
 import { Archive, Bell, CheckCircle2, Download, Heart, Loader2, Music2, Plus, Save, Settings2, ShieldAlert, Upload, UserRound, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
@@ -54,16 +55,16 @@ function getAudioDuration(file: File) {
 function UploadBeat({ onDone }: { onDone: () => void }) {
   const { user, profile } = useSupabaseAuth();
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState({ cover: 0, beat: 0 });
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState({ title: "", price: "", is_free: false });
   const [cover, setCover] = useState<File | null>(null);
   const [beatFile, setBeatFile] = useState<File | null>(null);
 
-  const upload = async (bucket: string, file: File) => {
+  const upload = async (bucket: string, file: File, kind: "cover" | "beat") => {
     if (!user) throw new Error("Sign in required.");
     const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-    const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type });
-    if (error) throw error;
+    await uploadResumable({ bucket, objectPath: path, file, onProgress: (percent, uploaded, total) => { setProgress(current => ({ ...current, [kind]: percent })); setMessage(`Uploading ${kind === "cover" ? "cover" : "main beat"}: ${percent}% · ${formatUploadSize(uploaded)} of ${formatUploadSize(total)}. You can retry if interrupted.`); } });
     return path;
   };
 
@@ -78,9 +79,9 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
     try {
       if (!navigator.onLine) throw new Error("Uploading a beat requires an internet connection.");
       if (beatFile.size > 200 * 1024 * 1024) throw new Error("Beat files must be 200 MB or smaller.");
-      const [coverPath, mainBeatPath] = await Promise.all([
-        upload("beat-covers", cover), upload("beat-masters", beatFile),
-      ]);
+      setProgress({ cover: 0, beat: 0 });
+      const coverPath = await upload("beat-covers", cover, "cover");
+      const mainBeatPath = await upload("beat-masters", beatFile, "beat");
       const slug = `${form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}-${Date.now().toString(36)}`;
       const price = form.is_free ? 0 : Number(form.price);
       const { data, error } = await supabase.from("beats").insert({
@@ -106,7 +107,7 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
     }
   };
 
-  return <form className="dashboard-panel upload-form" onSubmit={submit}><h2>Upload a beat</h2><p>Upload only the main beat file, cover picture, and title. Free beats can be played and downloaded; paid beats can be played but their download requires verified entitlement.</p><div className="field-grid"><label>Beat title<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required maxLength={120} /></label><label>Price (USD)<input type="number" min="0" step="0.01" disabled={form.is_free} value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} /></label><label className="checkbox-field"><input type="checkbox" checked={form.is_free} onChange={e => setForm({ ...form, is_free: e.target.checked })} />Free download</label></div><div className="file-grid"><FileInput label="Cover picture" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} /><FileInput label="Main beat file" accept="audio/*" file={beatFile} setFile={setBeatFile} /></div><button className="button" disabled={busy}>{busy && <Loader2 className="spin" size={16} />}<Upload size={16} />Publish beat</button>{message && <p className={message.startsWith("Beat published") ? "form-success" : "form-error"}>{message}</p>}</form>;
+  return <form className="dashboard-panel upload-form" onSubmit={submit}><h2>Upload a beat</h2><p>Upload only the main beat file, cover picture, and title. Free beats can be played and downloaded; paid beats can be played but their download requires verified entitlement.</p><div className="field-grid"><label>Beat title<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required maxLength={120} /></label><label>Price (USD)<input type="number" min="0" step="0.01" disabled={form.is_free} value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} /></label><label className="checkbox-field"><input type="checkbox" checked={form.is_free} onChange={e => setForm({ ...form, is_free: e.target.checked })} />Free download</label></div><div className="file-grid"><FileInput label="Cover picture" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} /><FileInput label="Main beat file" accept="audio/*" file={beatFile} setFile={setBeatFile} /></div>{busy && <div className="upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Cover {progress.cover}% · Main beat {progress.beat}%</span><b>{Math.round((progress.cover + progress.beat) / 2)}%</b></div><progress max="100" value={Math.round((progress.cover + progress.beat) / 2)}>{Math.round((progress.cover + progress.beat) / 2)}%</progress><small>Large files resume after a temporary network interruption.</small></div>}<button className="button" disabled={busy}>{busy && <Loader2 className="spin" size={16} />}<Upload size={16} />{busy ? `Uploading ${Math.round((progress.cover + progress.beat) / 2)}%` : "Publish beat"}</button>{message && <p className={message.startsWith("Beat published") ? "form-success" : "form-error"}>{message}</p>}</form>;
 }
 function FileInput({label,accept,file,setFile}:{label:string;accept:string;file:File|null;setFile:(file:File|null)=>void}){return <label className="file-input"><Upload size={18}/><b>{label}</b><span>{file?file.name:"Choose a file"}</span><input type="file" accept={accept} onChange={e=>setFile(e.target.files?.[0]||null)} required/></label>}
 function SellerProfileSettings({sellerId}:{sellerId:string}){const[form,setForm]=useState({producer_name:"",whatsapp:"",instagram_url:"",youtube_url:"",soundcloud_url:""});const[message,setMessage]=useState<string|null>(null);useEffect(()=>{if(!sellerId)return;supabase.from("seller_profiles").select("producer_name,whatsapp,instagram_url,youtube_url,soundcloud_url").eq("id",sellerId).maybeSingle().then(({data})=>{if(data)setForm({producer_name:data.producer_name||"",whatsapp:data.whatsapp||"",instagram_url:data.instagram_url||"",youtube_url:data.youtube_url||"",soundcloud_url:data.soundcloud_url||""});});},[sellerId]);const save=async(e:React.FormEvent)=>{e.preventDefault();const payload={id:sellerId,producer_name:form.producer_name.trim(),whatsapp:form.whatsapp.trim()||null,instagram_url:form.instagram_url.trim()||null,youtube_url:form.youtube_url.trim()||null,soundcloud_url:form.soundcloud_url.trim()||null};const{error}=await supabase.from("seller_profiles").upsert(payload,{onConflict:"id"});setMessage(error?error.message:"Public producer profile saved.");};return <form className="dashboard-panel profile-form" onSubmit={save}><h2><Settings2/> Producer profile</h2><p>These optional social links appear on your public BeatBox producer profile. Payment details stay private in the payment instructions below.</p><div className="field-grid"><label>Producer name<input value={form.producer_name} onChange={e=>setForm({...form,producer_name:e.target.value})} required/></label><label>WhatsApp number<input value={form.whatsapp} onChange={e=>setForm({...form,whatsapp:e.target.value})} placeholder="231..."/></label><label>Instagram URL<input type="url" value={form.instagram_url} onChange={e=>setForm({...form,instagram_url:e.target.value})} placeholder="https://instagram.com/..."/></label><label>YouTube URL<input type="url" value={form.youtube_url} onChange={e=>setForm({...form,youtube_url:e.target.value})} placeholder="https://youtube.com/..."/></label><label className="field-grid__wide">SoundCloud URL<input type="url" value={form.soundcloud_url} onChange={e=>setForm({...form,soundcloud_url:e.target.value})} placeholder="https://soundcloud.com/..."/></label></div><button className="button button--small"><Save size={14}/>Save public profile</button>{message&&<p className="form-success">{message}</p>}</form>}

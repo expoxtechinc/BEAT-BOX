@@ -10,7 +10,7 @@ const css = () => readFileSync(resolve(root, "client/src/index.css"), "utf8");
 describe("profile and Reel creator upgrade", () => {
   it("keeps avatar uploads scoped to the authenticated user and uses the public avatar bucket", () => {
     const source = profile();
-    expect(source).toContain('supabase.storage.from("avatars").upload');
+    expect(source).toContain('uploadResumable({ bucket: "avatars"');
     expect(source).toContain('`${user.id}/');
     expect(source).toContain('supabase.from("profiles").update({ avatar_url: publicUrl })');
     expect(source).toContain('supabase.from("content_bookmarks")');
@@ -18,7 +18,7 @@ describe("profile and Reel creator upgrade", () => {
 
   it("publishes only public Reel video media and creates a social reel record", () => {
     const source = reels();
-    expect(source).toContain('supabase.storage.from("social-media").upload');
+    expect(source).toContain('uploadResumable({ bucket: "social-media"');
     expect(source).toContain('media_type: "video"');
     expect(source).toContain('supabase.from("social_reels").insert');
     expect(source).not.toContain('content-masters');
