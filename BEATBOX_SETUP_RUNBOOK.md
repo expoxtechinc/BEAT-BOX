@@ -172,3 +172,24 @@ If `/api` returns the SPA shell or a 404, inspect `vercel.json` and ensure API r
 ## 12. Credential hygiene
 
 Rotate any credential previously pasted into chat, including GitHub tokens and AI/provider keys, before production. Use separate development and production secrets, least-privilege provider keys, branch protection on `main`, GitHub secret scanning, and Vercel encrypted environment variables. Do not use customer reviews, ratings, testimonials, or demo payment records as seeded data.
+
+## 13. Exact AI variables for Vercel
+
+BeatBox reads AI credentials only on the server. In Vercel, open **Settings → Environment Variables** and add the following variable names for **Production**, **Preview**, and **Development** as needed. Never add provider secrets to `VITE_*` variables, browser code, committed files, or public documentation.
+
+| Variable | Value to enter |
+|---|---|
+| `GEMINI_API_KEY` | Your Google AI Studio API key |
+| `GEMINI_MODEL` | `gemini-2.5-flash` or another enabled Gemini model |
+| `GROQ_API_KEY` | Your Groq API key |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` or another enabled Groq model |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key |
+| `OPENROUTER_MODEL` | `deepseek/deepseek-chat-v3-0324:free` or another enabled model |
+| `AI_ROUTER_ENABLED` | `true` |
+| `AI_ROUTER_TIMEOUT_MS` | `20000` |
+
+At least one provider key/model pair is required for the assistant to answer. The AI status card intentionally reports **No server-side AI provider is configured** when no valid server-side pair is available. After saving the variables, redeploy the Vercel project and confirm that the provider readiness card changes to configured. The recommended resilient setup is Gemini first, Groq second, and OpenRouter third; the server performs fallback when a provider times out, reaches quota, or returns an unusable response.
+
+If a key has ever been exposed publicly, revoke it at the provider immediately and create a replacement before adding it to Vercel. The AI assistant does not require `FAL_AI`, `REPLICATE_API_TOKEN`, Hugging Face, Cohere, Cerebras, Mistral, Together, Fireworks, Cloudflare, or GitHub variables for text chat unless a future server integration explicitly documents them. Do not paste secret values into GitHub, chat, screenshots, client bundles, or `VITE_*` variables.
+
+After redeployment, verify `/ai`, send an authenticated message, and inspect Vercel runtime logs if the status remains unavailable. A successful local build alone cannot verify that Vercel has the variables assigned to the correct environment.

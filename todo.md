@@ -435,3 +435,13 @@
 - [x] Make Reel/feed ordering deterministic and content grouping intentional instead of random
 - [x] Add regression coverage for quick replies, upload feedback, mobile Reel presentation, and ordering
 - [x] Run tests, strict TypeScript, production build, visual verification, publish, and synchronize to BEAT-BOX
+
+## Advanced social platform and mobile feed upgrade
+
+- [x] Add Reel "Not interested" controls with persistent per-user preference handling
+- [x] Add user-owned post/Reel deletion and audience privacy controls: public, friends, only me, and free-for-friends where supported
+- [x] Add friend requests, confirmations, unfriend, follows, mutual-friend context, and professional mode foundations
+- [x] Add visible likes, comments, and social context on Reel/feed cards with Facebook-inspired mobile hierarchy
+- [x] Align Reel creator metadata with compact social-feed conventions instead of overlaying names awkwardly
+- [x] Harden AI provider status, response handling, and Vercel variable guidance for the marketplace co-pilot
+- [x] Add migrations, RLS/security coverage, UI regression contracts, strict checks, production build, visual verification, publish, and BEAT-BOX synchronization
