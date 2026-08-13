@@ -1,8 +1,10 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { recordEngagement } from "@/lib/engagement";
 import { useEffect, useRef, useState } from "react";
 
-export function AudioPreview({ src, title, compact = false }: { src?: string | null; title: string; compact?: boolean }) {
+export function AudioPreview({ src, title, compact = false, engagementSubjectId }: { src?: string | null; title: string; compact?: boolean; engagementSubjectId?: string }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playTracked = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.8);
@@ -33,7 +35,7 @@ export function AudioPreview({ src, title, compact = false }: { src?: string | n
         ref={audioRef}
         src={src}
         preload="metadata"
-        onPlay={() => setPlaying(true)}
+        onPlay={() => { setPlaying(true); if (engagementSubjectId && !playTracked.current) { playTracked.current = true; void recordEngagement("beat", engagementSubjectId, "play").catch(() => undefined); } }}
         onPause={() => setPlaying(false)}
         onEnded={() => {
           setPlaying(false);

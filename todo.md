@@ -544,3 +544,13 @@
 - [x] Verify local BeatBox history and expoxtechinc/BEAT-BOX main for any unsynchronized work
 - [x] Push any remaining project changes to expoxtechinc/BEAT-BOX main
 - [x] Confirm the exact final GitHub commit and working-tree status
+
+## Truthful engagement analytics and live verification
+
+- [x] Audit existing BeatBox play, view, like, comment, and creator-metric data contracts and counter surfaces
+- [x] Add idempotent, privacy-safe event tracking for beat plays, content views, likes, and comments without fabricating or double-counting activity
+- [x] Render accurate play, view, like, and comment counts in the existing content cards, detail views, feed, Reels, and creator analytics surfaces
+- [x] Add comments and reaction-view interfaces that expose only real persisted engagement allowed by existing visibility and relationship rules
+- [x] Add migrations, RLS policies, indexes, regression tests, and reporting queries for the engagement model
+- [ ] Test the live Vercel deployment for reachable application routes, Gemini AI health, and database-backed application behavior without exposing private credentials
+- [ ] Run production validation, checkpoint, and synchronize the verified analytics release to expoxtechinc/BEAT-BOX

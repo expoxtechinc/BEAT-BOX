@@ -27,7 +27,7 @@ describe("24-hour Story and AI release", () => {
 
   it("protects the cleanup route as an idempotent cron callback", () => {
     const cleanup = read("server/storyExpiryCleanup.ts");
-    const server = read("server/_core/index.ts");
+    const server = read("server/_core/app.ts");
     expect(cleanup).toContain('if (!user.isCron || !user.taskUid)');
     expect(cleanup).toContain('rpc("expire_beatbox_stories")');
     expect(cleanup).toContain('from("story-media").remove(paths)');

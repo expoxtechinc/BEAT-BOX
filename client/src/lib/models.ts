@@ -42,6 +42,9 @@ export type Beat = {
   license_info: string | null;
   status: "draft" | "published" | "archived" | "removed" | null;
   play_count: number | null;
+  view_count?: number | null;
+  like_count?: number | null;
+  comment_count?: number | null;
   favorite_count: number | null;
   download_count: number | null;
   created_at: string | null;
