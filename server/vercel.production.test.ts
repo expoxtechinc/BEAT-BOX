@@ -16,10 +16,13 @@ describe("Vercel production contract", () => {
       expect.objectContaining({ src: "/api/(?<apiPath>.*)", dest: "/api/index?__beatbox_path=$apiPath" }),
       expect.objectContaining({ src: "/(.*)", dest: "/index.html" }),
     ]);
-    const handler = fs.readFileSync(path.join(root, "api/index.ts"), "utf8");
+    const handler = fs.readFileSync(path.join(root, "server/vercel-api-entry.ts"), "utf8");
     const health = fs.readFileSync(path.join(root, "api/health.ts"), "utf8");
+    const packageJson = fs.readFileSync(path.join(root, "package.json"), "utf8");
     expect(handler).toContain("createApp");
-    expect(handler).not.toContain('import("../server/_core/app")');
+    expect(handler).not.toContain('import("./_core/app")');
+    expect(packageJson).toContain("esbuild server/vercel-api-entry.ts");
+    expect(packageJson).toContain("--outfile=api/index.js");
     expect(health).not.toContain("VITE_GEMINI_API_KEY");
     const clientTransport = fs.readFileSync(path.join(root, "client/src/main.tsx"), "utf8");
     expect(clientTransport).toContain("content-type");
@@ -27,7 +30,7 @@ describe("Vercel production contract", () => {
   });
 
   it("keeps the serverless API entrypoint and SEO assets in the deployable source", () => {
-    expect(fs.existsSync(path.join(root, "api/index.ts"))).toBe(true);
+    expect(fs.existsSync(path.join(root, "server/vercel-api-entry.ts"))).toBe(true);
     expect(fs.existsSync(path.join(root, "api/health.ts"))).toBe(true);
     expect(fs.readFileSync(path.join(root, "client/public/google7c2d5df9354788c6.html"), "utf8")).toContain("google-site-verification");
     expect(fs.readFileSync(path.join(root, "client/public/robots.txt"), "utf8")).toContain("Sitemap:");

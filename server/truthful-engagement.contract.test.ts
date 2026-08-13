@@ -27,13 +27,15 @@ describe("truthful engagement analytics", () => {
 
   it("routes Vercel API traffic through the server-only Express entrypoint", () => {
     const vercel = read("vercel.json");
-    const api = read("api/index.ts");
+    const api = read("server/vercel-api-entry.ts");
     const health = read("api/health.ts");
+    const packageJson = read("package.json");
     expect(vercel).toContain('"dest": "/api/index?__beatbox_path=$apiPath"');
     expect(vercel).toContain('{ "handle": "filesystem" }');
     expect(api).toContain("createApp");
     expect(api).toContain("__beatbox_path");
-    expect(api).not.toMatch(/import\("\.\.\/server\/_core\/app"\)/);
+    expect(api).not.toMatch(/import\("\.\/_core\/app"\)/);
+    expect(packageJson).toContain("--outfile=api/index.js");
     expect(health).not.toMatch(/VITE_GEMINI_API_KEY/);
   });
 });
