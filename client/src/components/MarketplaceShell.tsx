@@ -1,7 +1,8 @@
 import { BrandLogo } from "@/components/BrandLogo";
 import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 import { Bell, Bookmark, Camera, Compass, Heart, Menu, MessageCircle, PlaySquare, ShoppingBag, UserRound, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { useLiteMode } from "@/hooks/useLiteMode";
 import { Link, useLocation } from "wouter";
 
@@ -9,6 +10,8 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [location] = useLocation();
   const { profile, user, signOut } = useSupabaseAuth();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  useEffect(() => { if (!user) { setUnreadNotifications(0); return; } let active = true; void supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("read", false).then(({ count }) => { if (active) setUnreadNotifications(count || 0); }); return () => { active = false; }; }, [user?.id]);
   const { liteMode, online, toggleLiteMode } = useLiteMode();
   const isSeller = profile?.role === "seller" || profile?.role === "admin";
   const dashboardHref = profile?.role === "admin" ? "/admin" : isSeller ? "/seller" : "/account";
@@ -35,7 +38,7 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
           <div className="site-header__actions"><button type="button" className={`lite-toggle ${liteMode ? "is-active" : ""}`} onClick={toggleLiteMode} aria-pressed={liteMode} title="Reduce video, image, and autoplay data use">{online ? "Online" : "Offline"} · {liteMode ? "Lite" : "Full"}</button>
             <Link href="/cart" className="icon-action" aria-label="Cart"><ShoppingBag size={19} /></Link>
             {user ? <>
-              <Link href="/account" className="icon-action" aria-label="Notifications"><Bell size={19} /></Link>
+              <Link href="/account?tab=notifications" className="icon-action notification-action" aria-label={unreadNotifications ? `${unreadNotifications} unread notifications` : "Notifications"}><Bell size={19} />{unreadNotifications > 0 && <span className="notification-badge" aria-hidden="true">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}</Link>
               <Link href={dashboardHref} className="account-pill"><UserRound size={15} /> <span>{profile?.display_name || "Account"}</span></Link>
               <button type="button" className="text-button desktop-only" onClick={() => void signOut()}>Sign out</button>
             </> : <Link href="/auth" className="button button--small">Sign in</Link>}
@@ -49,7 +52,7 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
         </nav>}
       </header>
       <main>{children}</main>
-      <nav className="mobile-bottom-nav" aria-label="Quick navigation"><Link href="/explore" className={location === "/explore" ? "is-active" : ""}><Compass size={17} /><span>Discover</span></Link><Link href="/feed" className={location === "/feed" || location === "/community" ? "is-active" : ""}><Heart size={17} /><span>Feed</span></Link><Link href="/reels" className={location === "/reels" ? "is-active" : ""}><PlaySquare size={17} /><span>Reels</span></Link><Link href="/reels#reel-upload" aria-label="Upload Reel"><Camera size={17} /><span>Upload</span></Link><Link href="/studio" className={location === "/studio" ? "is-active" : ""}><UserRound size={17} /><span>Studio</span></Link><Link href={user ? dashboardHref : "/auth"} className={location === dashboardHref ? "is-active" : ""}><ShoppingBag size={17} /><span>Account</span></Link></nav>
+      <nav className="mobile-bottom-nav" aria-label="Quick navigation"><Link href="/explore" className={location === "/explore" ? "is-active" : ""}><Compass size={17} /><span>Discover</span></Link><Link href="/feed" className={location === "/feed" || location === "/community" ? "is-active" : ""}><Heart size={17} /><span>Feed</span></Link><Link href="/reels" className={location === "/reels" ? "is-active" : ""}><PlaySquare size={17} /><span>Reels</span></Link><Link href="/reels#reel-upload" aria-label="Upload Reel"><Camera size={17} /><span>Upload</span></Link><Link href="/studio" className={location === "/studio" ? "is-active" : ""}><UserRound size={17} /><span>Studio</span></Link><Link href={user ? dashboardHref : "/auth"} className={location === dashboardHref ? "is-active" : ""}><ShoppingBag size={17} /><span>Account</span></Link><Link href={user ? "/account?tab=notifications" : "/auth"} className="notification-mobile-link"><Bell size={17} />{unreadNotifications > 0 && <span className="notification-badge notification-badge--mobile" aria-hidden="true">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}<span>Alerts</span></Link></nav>
       <footer className="site-footer">
         <div className="container site-footer__grid">
           <div><BrandLogo compact /><p>Built for artists, producers, and music communities ready to move with more ownership.</p></div>
