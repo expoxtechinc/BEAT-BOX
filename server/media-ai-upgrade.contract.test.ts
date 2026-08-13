@@ -104,7 +104,7 @@ describe("BeatBox media and AI upgrade contracts", () => {
     const styles = read("client/src/index.css");
     expect(storyViewer).toContain("story-viewer__progress-segment");
     expect(storyViewer).toContain("Quick reaction");
-    expect(community).toContain("StoryViewer");
+    expect(community).toContain("StoryRail");
     expect(community).toContain("composer-sheet-trigger");
     expect(shell).toContain("unread");
     expect(studio).toContain("ProfessionalDashboard");

@@ -528,3 +528,13 @@
 - [x] Verify the completed creator-platform release files and remote repository configuration
 - [x] Commit and push all completed bulk publishing, collections, mobile-shell, migration, test, and release-note changes to expoxtechinc/BEAT-BOX
 - [x] Verify the exact remote commit on expoxtechinc/BEAT-BOX and report the synchronization result
+
+## 24-hour Stories, audio, AI, and messaging release
+
+- [x] Audit existing Story, message, AI, notification, and responsive layout behavior before extending the social experience
+- [x] Add user status Stories with 24-hour expiry, privacy-aware publishing, viewer tracking, and audio media that is not forcibly muted after a user-initiated playback action
+- [ ] Add an automatic, idempotent expiration cleanup for expired Story records and associated private media while hiding expired Stories immediately in all user-facing queries
+- [x] Preserve private-message membership, attachment, read-state, and unavailable-user safeguards while improving conversation initiation and message responsiveness
+- [x] Configure AI responses to use server-only `GEMINI_API_KEY` with secure fallback behavior, never browser-exposed `VITE_GEMINI_API_KEY`
+- [x] Keep the current BeatBox information hierarchy and adaptive phone/tablet/desktop layout stable while placing Story and AI controls in established surfaces
+- [ ] Add migrations, RLS/storage safeguards, regression coverage, responsive visual checks, production validation, and GitHub synchronization for the release
