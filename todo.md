@@ -513,3 +513,14 @@
 - [x] Generate the opening motion shot and assemble a 1080x1920 30-second master with exact post-added CTA text
 - [x] Verify final MP4 duration, resolution, audio presence, and file size with ffprobe
 - [x] Write cross-platform posting guidance and disclose the AI video-quota fallback used for the final master
+
+## Bulk publishing and cross-device experience
+
+- [x] Audit the active Supabase-backed beat, content, and upload flows before extending the publishing model
+- [x] Add an ownership-safe bulk beat upload queue supporting 10–20 selected beats with per-item metadata, resumable progress, retry, validation, and partial-failure feedback
+- [x] Add albums with creator ownership, artwork, description, ordered tracks, public/private publishing, and listener-facing collection pages
+- [x] Add podcast series and episodes with cover art, episode metadata, secure media storage, publish controls, and playback/discovery surfaces
+- [x] Add creator-retention features that encourage repeat use without fabricating reviews or engagement data
+- [x] Refine navigation, upload surfaces, typography, media controls, and layouts for touch-first phones, tablets, desktop browsers, and accessible keyboard use
+- [x] Preserve a consistent adaptive application shell across Android, iPhone, iPad, Mac, Windows, and other modern browser environments
+- [x] Add schema migration, RLS/storage policies, regression tests, responsive visual checks, and production validation for the expanded creator platform

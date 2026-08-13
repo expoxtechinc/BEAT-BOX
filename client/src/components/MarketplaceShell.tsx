@@ -1,6 +1,6 @@
 import { BrandLogo } from "@/components/BrandLogo";
 import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
-import { Bell, Bookmark, Camera, Compass, Heart, Menu, MessageCircle, PlaySquare, ShoppingBag, UserRound, X } from "lucide-react";
+import { Bell, Bookmark, Camera, Compass, Heart, Menu, MessageCircle, PlaySquare, PlusCircle, ShoppingBag, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useLiteMode } from "@/hooks/useLiteMode";
@@ -13,8 +13,8 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   useEffect(() => { if (!user) { setUnreadNotifications(0); return; } let active = true; void supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("read", false).then(({ count }) => { if (active) setUnreadNotifications(count || 0); }); return () => { active = false; }; }, [user?.id]);
   const { liteMode, online, toggleLiteMode } = useLiteMode();
-  const isSeller = profile?.role === "seller" || profile?.role === "admin";
-  const dashboardHref = profile?.role === "admin" ? "/admin" : isSeller ? "/seller" : "/account";
+  const isCreator = Boolean(profile?.professional_mode || profile?.role === "seller" || profile?.role === "admin");
+  const dashboardHref = profile?.role === "admin" ? "/admin" : isCreator ? "/studio" : "/account";
   const nav = [
     ["Discover", "/explore"],
     ["Search", "/search"],
@@ -52,7 +52,7 @@ export function MarketplaceShell({ children }: { children: React.ReactNode }) {
         </nav>}
       </header>
       <main>{children}</main>
-      <nav className="mobile-bottom-nav" aria-label="Quick navigation"><Link href="/explore" className={location === "/explore" ? "is-active" : ""}><Compass size={17} /><span>Discover</span></Link><Link href="/feed" className={location === "/feed" || location === "/community" ? "is-active" : ""}><Heart size={17} /><span>Feed</span></Link><Link href="/reels" className={location === "/reels" ? "is-active" : ""}><PlaySquare size={17} /><span>Reels</span></Link><Link href="/reels#reel-upload" aria-label="Upload Reel"><Camera size={17} /><span>Upload</span></Link><Link href="/studio" className={location === "/studio" ? "is-active" : ""}><UserRound size={17} /><span>Studio</span></Link><Link href={user ? dashboardHref : "/auth"} className={location === dashboardHref ? "is-active" : ""}><ShoppingBag size={17} /><span>Account</span></Link><Link href={user ? "/account?tab=notifications" : "/auth"} className="notification-mobile-link"><Bell size={17} />{unreadNotifications > 0 && <span className="notification-badge notification-badge--mobile" aria-hidden="true">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}<span>Alerts</span></Link></nav>
+      <nav className="mobile-bottom-nav" aria-label="Quick navigation"><Link href="/explore" className={location === "/explore" ? "is-active" : ""}><Compass size={17} /><span>Discover</span></Link><Link href="/feed" className={location === "/feed" || location === "/community" ? "is-active" : ""}><Heart size={17} /><span>Feed</span></Link><Link href="/reels" className={location === "/reels" ? "is-active" : ""}><PlaySquare size={17} /><span>Reels</span></Link><Link href={user ? "/studio" : "/auth"} className={location === "/studio" ? "is-active" : ""} aria-label="Create or manage content"><PlusCircle size={19} /><span>Create</span></Link><Link href={user ? "/account" : "/auth"} className={location === "/account" ? "is-active" : ""} aria-label={unreadNotifications ? `Account, ${unreadNotifications} unread notifications` : "Account"}><UserRound size={17} />{unreadNotifications > 0 && <span className="notification-badge notification-badge--mobile" aria-hidden="true">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}<span>Account</span></Link></nav>
       <footer className="site-footer">
         <div className="container site-footer__grid">
           <div><BrandLogo compact /><p>Built for artists, producers, and music communities ready to move with more ownership.</p></div>
