@@ -456,3 +456,11 @@
 - [x] Verify selected post audience persists through the existing Supabase publication contract
 - [x] Verify AI provider variable names remain server-side and document exposed-key rotation guidance without storing pasted secrets
 - [x] Add regression coverage and run tests, strict TypeScript, production build, visual verification, and publish
+
+## Video-driven social interface and reusable skill
+- [ ] Analyze the supplied recording and map reusable interaction patterns to BeatBox surfaces
+- [ ] Recompose the app-first feed, navigation, story/reel rails, post cards, and interaction hierarchy using BeatBox branding
+- [ ] Add visible privacy icons and labels to published posts for Public, Friends, and Only Me
+- [ ] Create and validate a reusable BeatBox social-interface skill using skill-creator
+- [ ] Run regression, strict TypeScript, production build, and visual checks
+- [ ] Push the validated project changes to expoxtechinc/BEAT-BOX and prepare deployment guidance

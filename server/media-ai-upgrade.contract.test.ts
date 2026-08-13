@@ -63,6 +63,9 @@ describe("BeatBox media and AI upgrade contracts", () => {
     expect(reels).toContain("Thanks. We’ll show fewer Reels like this.");
     expect(socialActions).toContain("Not interested");
     expect(socialActions).toContain("Delete post");
+    expect(socialActions).toContain("Globe2");
+    expect(socialActions).toContain("Users");
+    expect(socialActions).toContain("LockKeyhole");
     expect(migration).toContain("professional_mode");
     expect(migration).toContain("social_post_not_interested");
     expect(migration).toContain("social_post_visible_to");
