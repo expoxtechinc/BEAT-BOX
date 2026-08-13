@@ -554,3 +554,8 @@
 - [x] Add migrations, RLS policies, indexes, regression tests, and reporting queries for the engagement model
 - [ ] Test the live Vercel deployment for reachable application routes, Gemini AI health, and database-backed application behavior without exposing private credentials
 - [ ] Run production validation, checkpoint, and synchronize the verified analytics release to expoxtechinc/BEAT-BOX
+
+## Direct Vercel project verification
+
+- [ ] Inspect the supplied Vercel project URL, deployment state, repository linkage, environment-variable availability, and API-route behavior without using the exposed GitHub token
+- [ ] Document any remaining Vercel access or routing blocker precisely and provide the minimum corrective action if live Gemini/database verification cannot be completed
