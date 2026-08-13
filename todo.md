@@ -557,5 +557,6 @@
 
 ## Direct Vercel project verification
 
+- [x] Add a non-sensitive Vercel serverless health probe that reports only Gemini and Supabase connectivity status, never credentials or data
 - [ ] Inspect the supplied Vercel project URL, deployment state, repository linkage, environment-variable availability, and API-route behavior without using the exposed GitHub token
 - [x] Document any remaining Vercel access or routing blocker precisely and provide the minimum corrective action if live Gemini/database verification cannot be completed
