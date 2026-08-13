@@ -552,8 +552,8 @@
 - [x] Render accurate play, view, like, and comment counts in the existing content cards, detail views, feed, Reels, and creator analytics surfaces
 - [x] Add comments and reaction-view interfaces that expose only real persisted engagement allowed by existing visibility and relationship rules
 - [x] Add migrations, RLS policies, indexes, regression tests, and reporting queries for the engagement model
-- [ ] Test the live Vercel deployment for reachable application routes, Gemini AI health, and database-backed application behavior without exposing private credentials
-- [ ] Run production validation, checkpoint, and synchronize the verified analytics release to expoxtechinc/BEAT-BOX
+- [x] Test the live Vercel deployment for reachable application routes, Gemini AI health, and database-backed application behavior without exposing private credentials
+- [x] Run production validation, checkpoint, and synchronize the verified analytics release to expoxtechinc/BEAT-BOX
 
 ## Direct Vercel project verification
 
