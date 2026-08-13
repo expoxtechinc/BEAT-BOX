@@ -445,3 +445,8 @@
 - [x] Align Reel creator metadata with compact social-feed conventions instead of overlaying names awkwardly
 - [x] Harden AI provider status, response handling, and Vercel variable guidance for the marketplace co-pilot
 - [x] Add migrations, RLS/security coverage, UI regression contracts, strict checks, production build, visual verification, publish, and BEAT-BOX synchronization
+
+## Exact advanced social migration synchronization
+- [x] Verify the unchanged 20260813 advanced social privacy migration in checkpoint 950cb94a
+- [x] Push the exact migration file to expoxtechinc/BEAT-BOX main without modification
+- [x] Provide the exact pushed SQL contents for production Supabase application
