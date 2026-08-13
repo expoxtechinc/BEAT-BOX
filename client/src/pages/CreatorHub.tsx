@@ -15,7 +15,7 @@ function AccessGate({ children }: { children: React.ReactNode }) {
   const { loading, user, profile } = useSupabaseAuth();
   if (loading) return <section className="status-page"><Loader2 className="spin" /><p>Loading studio…</p></section>;
   if (!user) return <section className="status-page"><h1>Sign in to open your studio.</h1><p>Creator tools are available to authenticated BeatBox accounts.</p><Link className="button" href="/auth">Sign in</Link></section>;
-  if (!(["seller", "admin"] as string[]).includes(profile?.role || "")) return <section className="status-page"><h1>Become a seller first.</h1><p>BeatBox has no approval queue. Activate selling from your seller dashboard, then return here.</p><Link className="button" href="/seller">Open seller dashboard</Link></section>;
+  if (!(profile?.professional_mode || (["seller", "admin"] as string[]).includes(profile?.role || ""))) return <section className="status-page"><h1>Turn on Professional mode first.</h1><p>Enable Professional mode from your profile to open your creator page, dashboard, analytics, and publishing tools.</p><Link className="button" href="/profile">Open profile settings</Link></section>;
   return <>{children}</>;
 }
 

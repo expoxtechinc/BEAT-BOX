@@ -4,6 +4,8 @@ import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 import { supabase } from "@/lib/supabase";
 import { formatUploadSize, uploadResumable } from "@/lib/resumableUpload";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 type ProfileRow = { id: string; username?: string | null; display_name?: string | null; avatar_url?: string | null };
 type Conversation = { id: string; updated_at: string; conversation_members?: { user_id: string; profiles?: ProfileRow | ProfileRow[] | null; last_read_at?: string | null }[] };
@@ -24,6 +26,8 @@ export default function Messages() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
   const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>({});
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const quickReplyMutation = trpc.ai.chat.useMutation();
   const requestedRecipient = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("to");
 
   const loadConversations = async () => {
@@ -76,12 +80,23 @@ export default function Messages() {
   const activeOther = profileFromRelation(activeConversation?.conversation_members?.find(member => member.user_id !== user?.id)?.profiles);
 
   const startConversation = async (profile: ProfileRow) => {
-    if (!user) return;
+    if (!user || profile.id === user.id) return;
     setBusy(true); setNotice(null);
+    const existing = conversations.find(conversation => {
+      const ids = conversation.conversation_members?.map(member => member.user_id) || [];
+      return ids.includes(user.id) && ids.includes(profile.id) && ids.length === 2;
+    });
+    if (existing) {
+      setQuery(""); setProfiles([]); setActiveId(existing.id); setBusy(false); return;
+    }
     const { data: conversation, error } = await supabase.from("conversations").insert({}).select("id, updated_at").single();
-    if (error || !conversation) { setNotice(error?.message || "Unable to start conversation."); setBusy(false); return; }
+    if (error || !conversation) { setNotice(error?.message || "Unable to start a private conversation. Try again while online."); setBusy(false); return; }
     const { error: memberError } = await supabase.from("conversation_members").insert([{ conversation_id: conversation.id, user_id: user.id }, { conversation_id: conversation.id, user_id: profile.id }]);
-    if (memberError) { setNotice(memberError.message); setBusy(false); return; }
+    if (memberError) {
+      await supabase.from("conversations").delete().eq("id", conversation.id);
+      setNotice(memberError.message.includes("recursion") ? "Private messaging is temporarily unavailable while access rules refresh. Please retry." : "This profile cannot receive a private conversation right now.");
+      setBusy(false); return;
+    }
     setQuery(""); setProfiles([]); await loadConversations(); setActiveId(conversation.id); setBusy(false);
   };
 
@@ -89,7 +104,7 @@ export default function Messages() {
     if (!user || !requestedRecipient || activeId || requestedRecipient === user.id) return;
     void supabase.from("profiles").select("id, username, display_name, avatar_url").eq("id", requestedRecipient).maybeSingle().then(({ data }) => {
       if (data) void startConversation(data as ProfileRow);
-      else setNotice("That BeatBox profile is unavailable or cannot receive messages.");
+      else setNotice("That BeatBox member could not be found. Search by username or display name and try again.");
     });
   }, [user?.id, requestedRecipient, activeId]);
 
@@ -128,6 +143,23 @@ export default function Messages() {
     catch { setNotice("Copy is unavailable in this browser context."); }
   };
 
+  const generateQuickReplies = () => {
+    if (!user || !activeOther || quickReplyMutation.isPending) return;
+    if (!navigator.onLine) { toast.info("Reconnect to generate AI quick replies."); return; }
+    const recent = messages.filter(message => message.body && !message.deleted_at).slice(-6).map(message => `${message.sender_id === user.id ? "Me" : activeOther.display_name || activeOther.username || "Creator"}: ${message.body}`).join("\n");
+    quickReplyMutation.mutate({
+      messages: [{ role: "user", content: `Suggest exactly three short, natural replies I can send to this BeatBox creator. Return one suggestion per line, without numbering, quotes, or explanation. Keep each under 90 characters. Recent conversation:\n${recent || "No messages yet."}` }],
+      context: "Messaging quick replies. Keep the suggestions respectful, concise, and never claim a payment or transaction succeeded.",
+    }, {
+      onSuccess: result => {
+        const suggestions = result.text.split(/\n+/).map(item => item.replace(/^[-*•\d.)\s]+/, "").trim()).filter(item => item.length > 0 && item.length <= 120).slice(0, 3);
+        setQuickReplies(suggestions);
+        if (!suggestions.length) toast.info("The assistant did not return quick replies. Try again.");
+      },
+      onError: error => toast.error(error.message || "Quick replies are unavailable right now."),
+    });
+  };
+
   const reportOrBlockNotice = (action: "report" | "block") => {
     setNotice(action === "report" ? "To report a private message, use BeatBox Help and include the conversation details." : "Blocking is managed from the member profile; no local block state was created.");
   };
@@ -140,5 +172,5 @@ export default function Messages() {
 
   if (!user) return <section className="status-page"><LockKeyhole size={30} /><h1>Sign in to message</h1><p>Private BeatBox conversations are available to authenticated members.</p></section>;
 
-  return <section className="messages-page"><div className="container"><div className="page-intro"><p className="eyebrow"><span /> Private conversations</p><h1>Messages</h1><p>Send text, images, documents, music, video, or other files. Attachments remain private and uploads require an internet connection.</p></div><div className="messages-layout"><aside className="messages-sidebar"><div className="search-field"><Search size={16} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search people…" aria-label="Search people" /></div>{profiles.length > 0 && <div className="message-user-results">{profiles.map(profile => <button type="button" key={profile.id} onClick={() => void startConversation(profile)} disabled={busy}><strong>{profile.display_name || profile.username || "BeatBox member"}</strong><small>@{profile.username || profile.id.slice(0, 8)}</small></button>)}</div>}{conversations.length === 0 ? <div className="empty-featured empty-featured--light"><MessageCircle size={28} /><h2>No conversations yet</h2><p>Search for a BeatBox member to start one.</p></div> : conversations.map(conversation => { const other = profileFromRelation(conversation.conversation_members?.find(member => member.user_id !== user.id)?.profiles); return <button type="button" key={conversation.id} className={`conversation-item ${conversation.id === activeId ? "is-active" : ""}`} onClick={() => setActiveId(conversation.id)}><strong>{other?.display_name || other?.username || "BeatBox member"}</strong><small>@{other?.username || "member"}</small></button>; })}</aside><section className="conversation-panel">{activeId ? <><header className="conversation-header"><MessageCircle size={18} /><div><strong>{activeOther?.display_name || activeOther?.username || "Conversation"}</strong><small>{activeOther?.username ? `@${activeOther.username}` : "Private BeatBox chat"}</small></div></header><div className="message-list" aria-live="polite">{messages.map(message => <article key={message.id} className={`message-bubble ${message.sender_id === user.id ? "is-own" : ""}`}>{message.deleted_at ? <em>Message deleted</em> : <>{message.reply_to_id && <small>Replying to a message</small>}{message.body && <p>{message.body}</p>}{message.attachment_path && (attachmentUrls[message.id] ? <a href={attachmentUrls[message.id]} target="_blank" rel="noreferrer">Open secure attachment</a> : <small>Preparing secure attachment…</small>)}<time>{new Date(message.created_at).toLocaleString()}</time>{message.sender_id === user.id && <button type="button" className="icon-action" onClick={() => void deleteMessage(message)} aria-label="Delete message"><Trash2 size={14} /></button>}<button type="button" className="text-button" onClick={() => void reactToMessage(message)}><Heart size={13} /> React</button><button type="button" className="text-button" onClick={() => void copyMessage(message)}><Copy size={13} /> Copy</button>{message.sender_id !== user.id && <><button type="button" className="text-button" onClick={() => setReplyTo(message)}>Reply</button><button type="button" className="text-button" onClick={() => reportOrBlockNotice("report")}>Report</button><button type="button" className="text-button" onClick={() => reportOrBlockNotice("block")}>Block</button></>}</>}</article>)}</div><form className="message-compose" onSubmit={send}>{replyTo && <button type="button" className="reply-context" onClick={() => setReplyTo(null)}>Replying to a message · cancel</button>}<textarea value={body} onChange={event => setBody(event.target.value)} placeholder="Write a private message…" rows={2} /><label className="attachment-button"><Paperclip size={16} />{file ? file.name : "Attach"}<input type="file" accept="*/*" onChange={event => setFile(event.target.files?.[0] || null)} /></label>{busy && file && <div className="upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Attachment upload</span><b>{uploadProgress}%</b></div><progress max="100" value={uploadProgress}>{uploadProgress}%</progress></div>}<button className="button" type="submit" disabled={busy || (!body.trim() && !file)}><Send size={16} /> Send</button></form></> : <div className="empty-featured empty-featured--light"><MessageCircle size={34} /><h2>Choose a conversation</h2><p>Search for a member or select a conversation to begin.</p></div>}</section></div>{notice && <p className="form-error" role="alert">{notice}</p>}</div></section>;
+  return <section className="messages-page"><div className="container"><div className="page-intro"><p className="eyebrow"><span /> Private conversations</p><h1>Messages</h1><p>Send text, images, documents, music, video, or other files. Attachments remain private and uploads require an internet connection.</p></div><div className="messages-layout"><aside className="messages-sidebar"><div className="search-field"><Search size={16} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search people…" aria-label="Search people" /></div>{profiles.length > 0 && <div className="message-user-results">{profiles.map(profile => <button type="button" key={profile.id} onClick={() => void startConversation(profile)} disabled={busy}><strong>{profile.display_name || profile.username || "BeatBox member"}</strong><small>@{profile.username || profile.id.slice(0, 8)}</small></button>)}</div>}{conversations.length === 0 ? <div className="empty-featured empty-featured--light"><MessageCircle size={28} /><h2>No conversations yet</h2><p>Search for a BeatBox member to start one.</p></div> : conversations.map(conversation => { const other = profileFromRelation(conversation.conversation_members?.find(member => member.user_id !== user.id)?.profiles); return <button type="button" key={conversation.id} className={`conversation-item ${conversation.id === activeId ? "is-active" : ""}`} onClick={() => setActiveId(conversation.id)}><strong>{other?.display_name || other?.username || "BeatBox member"}</strong><small>@{other?.username || "member"}</small></button>; })}</aside><section className="conversation-panel">{activeId ? <><header className="conversation-header"><MessageCircle size={18} /><div><strong>{activeOther?.display_name || activeOther?.username || "Conversation"}</strong><small>{activeOther?.username ? `@${activeOther.username}` : "Private BeatBox chat"}</small></div></header><div className="message-list" aria-live="polite">{messages.map(message => <article key={message.id} className={`message-bubble ${message.sender_id === user.id ? "is-own" : ""}`}>{message.deleted_at ? <em>Message deleted</em> : <>{message.reply_to_id && <small>Replying to a message</small>}{message.body && <p>{message.body}</p>}{message.attachment_path && (attachmentUrls[message.id] ? <a href={attachmentUrls[message.id]} target="_blank" rel="noreferrer">Open secure attachment</a> : <small>Preparing secure attachment…</small>)}<time>{new Date(message.created_at).toLocaleString()}</time>{message.sender_id === user.id && <button type="button" className="icon-action" onClick={() => void deleteMessage(message)} aria-label="Delete message"><Trash2 size={14} /></button>}<button type="button" className="text-button" onClick={() => void reactToMessage(message)}><Heart size={13} /> React</button><button type="button" className="text-button" onClick={() => void copyMessage(message)}><Copy size={13} /> Copy</button>{message.sender_id !== user.id && <><button type="button" className="text-button" onClick={() => setReplyTo(message)}>Reply</button><button type="button" className="text-button" onClick={() => reportOrBlockNotice("report")}>Report</button><button type="button" className="text-button" onClick={() => reportOrBlockNotice("block")}>Block</button></>}</>}</article>)}</div><form className="message-compose" onSubmit={send}>{activeOther && <div className="quick-replies" aria-live="polite"><div className="quick-replies__header"><span>Quick replies</span><button type="button" className="text-button" onClick={generateQuickReplies} disabled={quickReplyMutation.isPending}>{quickReplyMutation.isPending ? "Thinking…" : quickReplies.length ? "Refresh" : "Suggest with AI"}</button></div>{quickReplies.map(reply => <button type="button" className="quick-reply-chip" key={reply} onClick={() => { setBody(reply); setQuickReplies([]); }}>{reply}</button>)}</div>}{replyTo && <button type="button" className="reply-context" onClick={() => setReplyTo(null)}>Replying to a message · cancel</button>}<textarea value={body} onChange={event => setBody(event.target.value)} placeholder="Write a private message…" rows={2} /><label className="attachment-button"><Paperclip size={16} />{file ? file.name : "Attach"}<input type="file" accept="*/*" onChange={event => setFile(event.target.files?.[0] || null)} /></label>{busy && file && <div className="upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Attachment upload</span><b>{uploadProgress}%</b></div><progress max="100" value={uploadProgress}>{uploadProgress}%</progress></div>}<button className="button" type="submit" disabled={busy || (!body.trim() && !file)}><Send size={16} /> Send</button></form></> : <div className="empty-featured empty-featured--light"><MessageCircle size={34} /><h2>Choose a conversation</h2><p>Search for a member or select a conversation to begin.</p></div>}</section></div>{notice && <p className="form-error" role="alert">{notice}</p>}</div></section>;
 }
