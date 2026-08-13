@@ -502,3 +502,14 @@
 - [x] Repair messaging empty, unavailable-profile, and navigation states
 - [x] Add regression coverage for RLS naming/behavior and relationship semantics
 - [x] Run tests, strict TypeScript, production build, synchronize BEAT-BOX, and publish
+
+
+## Promotional advertisement production
+
+- [x] Confirm the live BeatBox visual identity, product claims, official logo reference, audience, and cross-platform advertisement requirements
+- [x] Write the 30-second vertical storyboard, narration script, music brief, transition plan, and platform adaptation notes
+- [x] Generate three consistent BeatBox reference stills for phone UI, producer studio, and artist listening scenes
+- [x] Generate the original 30-second Afrobeat-inspired instrumental bed and compact English voiceover
+- [x] Generate the opening motion shot and assemble a 1080x1920 30-second master with exact post-added CTA text
+- [x] Verify final MP4 duration, resolution, audio presence, and file size with ffprobe
+- [x] Write cross-platform posting guidance and disclose the AI video-quota fallback used for the final master
