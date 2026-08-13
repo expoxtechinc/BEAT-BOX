@@ -19,6 +19,7 @@ export type Profile = {
   contact_preferences?: Record<string, boolean> | null;
   role: UserRole | null;
   account_status: "active" | "suspended" | "banned" | null;
+  professional_mode?: boolean | null;
 };
 
 export type Beat = {
@@ -61,7 +62,7 @@ export type BeatLicense = {
 
 export type Category = { id: string; name: string; slug: string };
 
-export type ContentType = "audio" | "video" | "movie" | "software" | "app" | "digital_product";
+export type ContentType = "audio" | "video" | "movie" | "software" | "app" | "digital_product" | "plugin" | "soundboard" | "soundtrack" | "loop" | "sample_pack" | "engineering_file";
 export type AccessMode = "free_download" | "paid_download" | "stream_only";
 
 export type ContentItem = {
@@ -99,11 +100,13 @@ export type SocialPost = {
   media_gallery?: Array<{ path: string; type: "image" | "audio" | "video" }> | null;
   link_url: string | null;
   status: string;
+  audience?: "public" | "friends" | "only_me" | null;
+  thumbnail_path?: string | null;
   like_count: number;
   comment_count: number;
   share_count: number;
   created_at: string;
-  profiles?: { display_name: string | null; avatar_url: string | null } | null;
+  profiles?: { display_name: string | null; avatar_url: string | null; username?: string | null; professional_mode?: boolean | null } | null;
 };
 
 export type Product = {

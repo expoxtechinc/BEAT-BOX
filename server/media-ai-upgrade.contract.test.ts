@@ -93,4 +93,27 @@ describe("BeatBox media and AI upgrade contracts", () => {
     expect(router).toContain("process.env.OPENROUTER_API_KEY");
     expect(router).not.toContain("console.log(process.env");
   });
+
+  it("covers stories, creator studio, notifications, mobile composer, and engineering assets", () => {
+    const storyViewer = read("client/src/components/StoryViewer.tsx");
+    const community = read("client/src/pages/Community.tsx");
+    const shell = read("client/src/components/MarketplaceShell.tsx");
+    const studio = read("client/src/pages/CreatorHub.tsx");
+    const models = read("client/src/lib/models.ts");
+    const migration = read("supabase/migrations/20260813_beatbox_engineering_asset_types.sql");
+    const styles = read("client/src/index.css");
+    expect(storyViewer).toContain("story-viewer__progress-segment");
+    expect(storyViewer).toContain("Quick reaction");
+    expect(community).toContain("StoryViewer");
+    expect(community).toContain("composer-sheet-trigger");
+    expect(shell).toContain("unread");
+    expect(studio).toContain("ProfessionalDashboard");
+    expect(studio).toContain('value="plugin"');
+    expect(studio).toContain('value="soundboard"');
+    expect(studio).toContain('value="sample_pack"');
+    expect(models).toContain('"engineering_file"');
+    expect(migration).toContain("engineering_file");
+    expect(styles).toContain("community-composer.is-open");
+    expect(styles).toContain("mobile-bottom-nav a.is-active");
+  });
 });
