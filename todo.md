@@ -485,3 +485,9 @@
 - [x] Refine circular mobile navigation/icon arrangement to match the supplied reference hierarchy
 - [x] Add structured engineering-asset publishing for plugins, soundboards, soundtracks, loops, sample packs, and related files
 - [x] Add storage/schema safeguards, regression coverage, visual validation, production build, checkpoint, and BEAT-BOX synchronization
+
+## Production engineering-asset migration verification
+
+- [x] Apply the exact 20260813_beatbox_engineering_asset_types.sql migration to production Supabase
+- [x] Verify engineering content-type constraints, RLS boundaries, and storage policies for large uploads
+- [x] Report migration status, verification results, and any upload-size limitations
