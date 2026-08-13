@@ -524,3 +524,9 @@
 - [x] Refine navigation, upload surfaces, typography, media controls, and layouts for touch-first phones, tablets, desktop browsers, and accessible keyboard use
 - [x] Preserve a consistent adaptive application shell across Android, iPhone, iPad, Mac, Windows, and other modern browser environments
 - [x] Add schema migration, RLS/storage policies, regression tests, responsive visual checks, and production validation for the expanded creator platform
+
+## GitHub release synchronization
+
+- [ ] Verify the completed creator-platform release files and remote repository configuration
+- [ ] Commit and push all completed bulk publishing, collections, mobile-shell, migration, test, and release-note changes to expoxtechinc/BEAT-BOX
+- [ ] Verify the exact remote commit on expoxtechinc/BEAT-BOX and report the synchronization result
