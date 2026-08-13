@@ -54,13 +54,25 @@ async function loadApp() {
   return appPromise;
 }
 
+function restoreApiPath(req: Request) {
+  const url = new URL(req.url || "/", "https://beatbox.local");
+  const apiPath = url.searchParams.get("__beatbox_path");
+  if (!apiPath) return url.pathname;
+
+  url.searchParams.delete("__beatbox_path");
+  const path = `/api/${apiPath.replace(/^\/+/, "")}`;
+  const query = url.searchParams.toString();
+  req.url = `${path}${query ? `?${query}` : ""}`;
+  return path;
+}
+
 /**
  * Vercel invokes this handler for every /api request. `/api/health` deliberately
  * avoids importing the full application, enabling credential-safe production
  * diagnosis even when another application module fails during serverless boot.
  */
 export default async function handler(req: Request, res: Response) {
-  const path = new URL(req.url || "/", "https://beatbox.local").pathname;
+  const path = restoreApiPath(req);
   if (path === "/api/health") {
     const [gemini, database] = await Promise.all([checkGemini(), checkSupabase()]);
     const ok = gemini.reachable !== false && database.reachable !== false;

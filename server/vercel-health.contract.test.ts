@@ -4,7 +4,6 @@ import { resolve } from "node:path";
 
 describe("Vercel health probe contract", () => {
   const entrypoint = readFileSync(resolve(process.cwd(), "api/index.ts"), "utf8");
-  const catchAll = readFileSync(resolve(process.cwd(), "api/[...path].ts"), "utf8");
   const vercelConfig = JSON.parse(readFileSync(resolve(process.cwd(), "vercel.json"), "utf8"));
 
   it("keeps Gemini and Supabase reachability checks server-side and credential-safe", () => {
@@ -20,11 +19,13 @@ describe("Vercel health probe contract", () => {
     expect(entrypoint).not.toContain('import { createApp } from "../server/_core/app"');
   });
 
-  it("lets the Vercel file system resolve API paths before the SPA fallback", () => {
-    expect(catchAll).toContain('export { default } from "./index"');
+  it("preserves the original API path before the SPA fallback", () => {
     expect(vercelConfig.routes).toEqual([
+      { src: "/api/(?<apiPath>.*)", dest: "/api/index?__beatbox_path=$apiPath" },
       { handle: "filesystem" },
       { src: "/(.*)", dest: "/index.html" },
     ]);
+    expect(entrypoint).toContain("__beatbox_path");
+    expect(entrypoint).toContain("req.url =");
   });
 });
