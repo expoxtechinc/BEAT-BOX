@@ -34,6 +34,52 @@ describe("BeatBox media and AI upgrade contracts", () => {
     expect(shell).toContain("Upload Reel");
   });
 
+  it("covers quick replies, upload feedback, and app-first Reel ordering", () => {
+    const messages = read("client/src/pages/Messages.tsx");
+    const reels = read("client/src/pages/Reels.tsx");
+    const home = read("client/src/pages/Home.tsx");
+    const styles = read("client/src/index.css");
+    expect(messages).toContain("generateQuickReplies");
+    expect(messages).toContain("Suggest with AI");
+    expect(messages).toContain("trpc.ai.chat.useMutation");
+    expect(reels).toContain("toast.success(\"Reel published\"");
+    expect(reels).toContain('.order("id", { ascending: false })');
+    expect(home).toContain("created_at || \"\"");
+    expect(home).toContain("a.name.localeCompare(b.name)");
+    expect(styles).toContain("scroll-snap-stop:always");
+    expect(styles).toContain("quick-reply-chip");
+  });
+
+  it("covers privacy, ownership, relationships, and Reel feed preferences", () => {
+    const community = read("client/src/pages/Community.tsx");
+    const reels = read("client/src/pages/Reels.tsx");
+    const socialActions = read("client/src/components/SocialActions.tsx");
+    const migration = read("supabase/migrations/20260813_beatbox_advanced_social_privacy.sql");
+    expect(community).toContain('value={audience}');
+    expect(community).toContain('social_posts").delete().eq("id", post.id).eq("author_id", user.id)');
+    expect(community).toContain("Friend request confirmed.");
+    expect(community).toContain("Friend removed.");
+    expect(reels).toContain("social_post_not_interested");
+    expect(reels).toContain("Thanks. We’ll show fewer Reels like this.");
+    expect(socialActions).toContain("Not interested");
+    expect(socialActions).toContain("Delete post");
+    expect(socialActions).toContain("Globe2");
+    expect(socialActions).toContain("Users");
+    expect(socialActions).toContain("LockKeyhole");
+    expect(migration).toContain("professional_mode");
+    expect(migration).toContain("social_post_not_interested");
+    expect(migration).toContain("social_post_visible_to");
+  });
+
+  it("documents the exact server-side AI environment variables for Vercel", () => {
+    const runbook = read("BEATBOX_SETUP_RUNBOOK.md");
+    expect(runbook).toContain("GEMINI_API_KEY");
+    expect(runbook).toContain("GROQ_API_KEY");
+    expect(runbook).toContain("OPENROUTER_API_KEY");
+    expect(runbook).toContain("AI_ROUTER_ENABLED");
+    expect(runbook).toContain("Never add provider secrets to `VITE_*");
+  });
+
   it("keeps browser offline AI behavior explicit and credential-free", () => {
     const ai = read("client/src/pages/AI.tsx");
     const router = read("server/aiRouter.ts");
