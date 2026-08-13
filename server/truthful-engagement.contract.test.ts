@@ -28,7 +28,9 @@ describe("truthful engagement analytics", () => {
   it("routes Vercel API traffic through the server-only Express entrypoint", () => {
     const vercel = read("vercel.json");
     const api = read("api/index.ts");
-    expect(vercel).toContain('"dest": "/api/index"');
+    const catchAll = read("api/[...path].ts");
+    expect(vercel).toContain('"handle": "filesystem"');
+    expect(catchAll).toContain('export { default } from "./index"');
     expect(api).toContain("createApp");
     expect(api).not.toMatch(/VITE_GEMINI_API_KEY/);
   });

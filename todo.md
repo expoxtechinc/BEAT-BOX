@@ -560,3 +560,8 @@
 - [x] Add a non-sensitive Vercel serverless health probe that reports only Gemini and Supabase connectivity status, never credentials or data
 - [x] Inspect the supplied Vercel project URL and available authorized Vercel scope without using the exposed GitHub token; the team exposes no accessible project, so deployment linkage, environment variables, and runtime logs remain owner-controlled
 - [x] Document any remaining Vercel access or routing blocker precisely and provide the minimum corrective action if live Gemini/database verification cannot be completed
+
+## Authorized Vercel API routing repair
+
+- [x] Replace the conflicting legacy Vercel route sequence with explicit API and SPA rewrites so `/api/*` reaches the serverless entrypoint before the SPA fallback
+- [ ] Validate the production `/api/health` response and record Gemini/Supabase service status without exposing secrets

@@ -12,7 +12,6 @@ describe("Vercel production contract", () => {
     expect(config.installCommand).toContain("pnpm install --frozen-lockfile");
     expect(config.outputDirectory).toBe("dist/public");
     expect(config.routes).toEqual([
-      expect.objectContaining({ src: "/api/(.*)", dest: "/api/index" }),
       expect.objectContaining({ handle: "filesystem" }),
       expect.objectContaining({ src: "/(.*)", dest: "/index.html" }),
     ]);
@@ -26,6 +25,7 @@ describe("Vercel production contract", () => {
 
   it("keeps the serverless API entrypoint and SEO assets in the deployable source", () => {
     expect(fs.existsSync(path.join(root, "api/index.ts"))).toBe(true);
+    expect(fs.readFileSync(path.join(root, "api/[...path].ts"), "utf8")).toContain('export { default } from "./index"');
     expect(fs.readFileSync(path.join(root, "client/public/google7c2d5df9354788c6.html"), "utf8")).toContain("google-site-verification");
     expect(fs.readFileSync(path.join(root, "client/public/robots.txt"), "utf8")).toContain("Sitemap:");
     expect(fs.readFileSync(path.join(root, "client/public/sitemap.xml"), "utf8")).toContain("https://beat-box-org.vercel.app");

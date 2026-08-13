@@ -4,7 +4,6 @@
   "framework": "vite",
   "installCommand": "pnpm install --frozen-lockfile",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
