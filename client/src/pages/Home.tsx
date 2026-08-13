@@ -14,14 +14,14 @@ function BeatBoxHome() {
   usePageMeta("Discover music with room to move", "BeatBox is a secure beat marketplace for discovering, licensing, and selling original music.");
   const [beats, setBeats] = useState<Beat[]>([]);
   const [loading, setLoading] = useState(true);
-  const featured = beats.slice(0, 6);
+  const featured = useMemo(() => [...beats].sort((a, b) => (b.created_at || "").localeCompare(a.created_at || "") || a.title.localeCompare(b.title) || a.id.localeCompare(b.id)).slice(0, 6), [beats]);
   const topProducers = useMemo(() => Object.values(beats.reduce<Record<string, { id: string; name: string; beats: number; image: string | null }>>((result, beat) => {
     const current = result[beat.seller_id];
     result[beat.seller_id] = current
       ? { ...current, beats: current.beats + 1 }
       : { id: beat.seller_id, name: beat.producer || "BeatBox producer", beats: 1, image: beat.cover_url || null };
     return result;
-  }, {})).sort((a, b) => b.beats - a.beats).slice(0, 4), [beats]);
+  }, {})).sort((a, b) => b.beats - a.beats || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)).slice(0, 4), [beats]);
 
   useEffect(() => {
     loadPublishedBeats().then(setBeats).catch(() => setBeats([])).finally(() => setLoading(false));

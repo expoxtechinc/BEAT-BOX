@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { formatUploadSize, uploadResumable } from "@/lib/resumableUpload";
 import { prepareReelMedia, type ReelMediaProgress } from "@/lib/reelMedia";
 import type { SocialPost } from "@/lib/models";
+import { toast } from "sonner";
 
 type ReelPost = SocialPost & { reel_id?: string; caption?: string | null; creator_id?: string; thumbnail_path?: string | null };
 
@@ -44,7 +45,7 @@ function ReelUpload({ onPublished }: { onPublished: () => void }) {
       if (post.error || !post.data) throw post.error || new Error("Unable to create the Reel post.");
       const reel = await supabase.from("social_reels").insert({ post_id: post.data.id, creator_id: user.id, caption: caption.trim() || null, status: "published" });
       if (reel.error) throw reel.error;
-      setFile(null); setCaption(""); setUploadProgress(100); setMessage(prepared.compressed ? "Your compressed Reel and thumbnail are live in the vertical viewer." : "Your Reel and thumbnail are live in the vertical viewer."); onPublished();
+      setFile(null); setCaption(""); setUploadProgress(100); const successMessage = prepared.compressed ? "Your compressed Reel and thumbnail are live in the vertical viewer." : "Your Reel and thumbnail are live in the vertical viewer."; setMessage(successMessage); toast.success("Reel published", { description: "Your Reel is now available in the vertical viewer." }); onPublished();
     } catch (error) { setMessage(error instanceof DOMException && error.name === "AbortError" ? "Upload paused. Choose the file again to retry." : error instanceof Error ? error.message : "Unable to publish Reel. You can retry to resume the upload."); } finally { setBusy(false); setUploadController(null); }
   };
   return <form id="reel-upload" className="dashboard-panel reels-upload" onSubmit={publish}><div><p className="eyebrow"><span /> Creator upload</p><h2>Publish a Reel</h2><p className="muted-copy">Your browser creates a lightweight video and first-frame thumbnail before resumable upload. Never upload paid masters or private payment files here.</p></div><label className="file-drop"><Upload size={20} /><span>{file ? file.name : "Choose a video"}</span><input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={event => setFile(event.target.files?.[0] || null)} /></label>{file && <p className="upload-meta">{file.name} · {formatUploadSize(file.size)} · Browser preparation and resumable upload are enabled.</p>}<textarea value={caption} onChange={event => setCaption(event.target.value)} maxLength={500} placeholder="Add a caption" rows={2} />{busy && <div className="upload-progress" aria-live="polite"><div className="upload-progress__label"><span>Preparing or uploading Reel</span><b>{uploadProgress}%</b></div><progress max="100" value={uploadProgress}>{uploadProgress}%</progress><button className="button button--small" type="button" onClick={() => uploadController?.abort()}>Pause upload</button></div>}<button className="button" disabled={busy || !file} type="submit">{busy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} {busy ? `Working ${uploadProgress}%` : "Publish Reel"}</button>{message && <p className={message.includes("live") ? "form-success" : "form-error"} role="status">{message}</p>}</form>;
@@ -61,7 +62,7 @@ export default function Reels() {
   const [active, setActive] = useState(0);
   const load = async () => {
     setLoading(true);
-    const result = await supabase.from("social_reels").select("id,post_id,caption,creator_id,social_posts!inner(id,author_id,body,media_path,thumbnail_path,media_type,like_count,comment_count,share_count,created_at,status,profiles(display_name,avatar_url))").eq("status", "published").eq("social_posts.status", "published").order("created_at", { ascending: false }).limit(50);
+    const result = await supabase.from("social_reels").select("id,post_id,caption,creator_id,social_posts!inner(id,author_id,body,media_path,thumbnail_path,media_type,like_count,comment_count,share_count,created_at,status,profiles(display_name,avatar_url))").eq("status", "published").eq("social_posts.status", "published").order("created_at", { ascending: false }).order("id", { ascending: false }).limit(50);
     const next = (result.data || []).map(row => { const post = Array.isArray(row.social_posts) ? row.social_posts[0] : row.social_posts; if (!post) return null; return { ...(post as unknown as ReelPost), reel_id: row.id, caption: row.caption, creator_id: row.creator_id }; }).filter(Boolean) as ReelPost[];
     setPosts(next);
     const nextUrls: Record<string, string> = {};

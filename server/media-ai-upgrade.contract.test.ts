@@ -34,6 +34,22 @@ describe("BeatBox media and AI upgrade contracts", () => {
     expect(shell).toContain("Upload Reel");
   });
 
+  it("covers quick replies, upload feedback, and app-first Reel ordering", () => {
+    const messages = read("client/src/pages/Messages.tsx");
+    const reels = read("client/src/pages/Reels.tsx");
+    const home = read("client/src/pages/Home.tsx");
+    const styles = read("client/src/index.css");
+    expect(messages).toContain("generateQuickReplies");
+    expect(messages).toContain("Suggest with AI");
+    expect(messages).toContain("trpc.ai.chat.useMutation");
+    expect(reels).toContain("toast.success(\"Reel published\"");
+    expect(reels).toContain('.order("id", { ascending: false })');
+    expect(home).toContain("created_at || \"\"");
+    expect(home).toContain("a.name.localeCompare(b.name)");
+    expect(styles).toContain("scroll-snap-stop:always");
+    expect(styles).toContain("quick-reply-chip");
+  });
+
   it("keeps browser offline AI behavior explicit and credential-free", () => {
     const ai = read("client/src/pages/AI.tsx");
     const router = read("server/aiRouter.ts");
