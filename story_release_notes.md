@@ -12,6 +12,8 @@ Audio never begins unexpectedly. After a user opens an audio or video Story, Bea
 
 The deployed server now exposes an idempotent cron-only callback at `/api/scheduled/expire-stories`. It calls the applied database expiry function, removes the resulting private storage objects, and clears the durable cleanup queue only after storage deletion succeeds. A project-level nightly Heartbeat can run this callback after the release checkpoint is published.
 
+The owner-managed production Heartbeat is enabled as `beatbox-story-expiry-nightly` with task UID `TaLZRYbSwmW9dM4oxS7KVN`. It calls the expiry endpoint at **03:00 UTC** each day using the six-field schedule `0 0 3 * * *`. The job can be inspected, paused, resumed, or deleted from the project schedule controls or with `manus-heartbeat` in a future maintenance session.
+
 AI responses remain server-only. The AI router reads `GEMINI_API_KEY`, never `VITE_GEMINI_API_KEY`; this prevents a browser client from receiving the credential. The existing private-message AI quick-reply flow continues to call the secured server router.
 
 ## Responsive verification
