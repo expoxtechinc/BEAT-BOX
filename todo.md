@@ -450,3 +450,9 @@
 - [x] Verify the unchanged 20260813 advanced social privacy migration in checkpoint 950cb94a
 - [x] Push the exact migration file to expoxtechinc/BEAT-BOX main without modification
 - [x] Provide the exact pushed SQL contents for production Supabase application
+
+## Post privacy dropdown and AI environment verification
+- [x] Add a post-composer privacy dropdown with Public, Friends, and Only Me options
+- [x] Verify selected post audience persists through the existing Supabase publication contract
+- [x] Verify AI provider variable names remain server-side and document exposed-key rotation guidance without storing pasted secrets
+- [x] Add regression coverage and run tests, strict TypeScript, production build, visual verification, and publish
