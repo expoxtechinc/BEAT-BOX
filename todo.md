@@ -565,4 +565,5 @@
 
 - [x] Replace the conflicting legacy Vercel route sequence with explicit API and SPA rewrites so `/api/*` reaches the serverless entrypoint before the SPA fallback
 - [x] Preserve the original nested API path through the Vercel rewrite so the shared handler can dispatch `/api/health` and tRPC requests correctly
+- [x] Isolate `/api/health` from the Express bundle and statically import the shared Express app for other API calls so Vercel includes its server modules at runtime
 - [ ] Validate the production `/api/health` response and record Gemini/Supabase service status without exposing secrets

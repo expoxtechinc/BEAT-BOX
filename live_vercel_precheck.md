@@ -37,3 +37,7 @@ Because `sastechorg-beatbox` already exists but cannot be read by the integratio
 ## Authorized deployment verification
 
 The production Vercel project `sastechorg-beatbox` is linked to `expoxtechinc/BEAT-BOX` on `main`. Its latest production deployment is `READY` and records GitHub commit `faad6de0cdd1194b26346b25b44ac19347d293b6`. However, the public alias `https://sastechorg-beatbox.vercel.app/api/health` still renders the BeatBox SPA 404 page rather than invoking the serverless handler. The issue is therefore a Vercel route/build-output configuration problem in the deployed source, not a missing Git deployment or an AI/database credential result. Gemini and Supabase connectivity remain unverified until the API path is served by the serverless function.
+
+## Runtime packaging diagnosis
+
+After preserving the nested API pathname, a direct request to the deployed `/api/index?__beatbox_path=health` function produced Vercel `FUNCTION_INVOCATION_FAILED`. Authorized runtime diagnostics identified `ERR_MODULE_NOT_FOUND` for `/var/task/server/_core/app`, caused by the dynamically imported shared Express module not being traced into the function bundle. The next repair separates `/api/health` into its own no-application-import function and uses a static shared-app import in the non-health API handler. The Vercel filesystem handler now runs first, so the standalone diagnostic route is resolved before the API fallback and remains usable even when the main Express function has a boot failure.
