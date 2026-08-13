@@ -30,7 +30,9 @@ describe("social persistence and public-visibility contracts", () => {
     expect(community).toContain('insert({ post_id: post.id, user_id: user.id, body: text.trim() })');
     expect(community).toContain('insert({ post_id: post.id, user_id: user.id });');
     expect(community).toContain('insert({ reporter_id: user.id, reason: reason.trim(), reported_post_id: post.id');
-    expect(community).toContain('upsert({ sender_id: user.id, receiver_id: authorId, status: "pending" }');
+    expect(producer).toContain('from("social_friend_requests")');
+    expect(producer).toContain('insert({ requester_id: user.id, addressee_id: producer.id, status: "pending" })');
+    expect(producer).toContain('update({ status }).eq("requester_id", producer.id).eq("addressee_id", user.id)');
     expect(socialMigration).toContain("auth.uid()");
     expect(securityMigration).toContain("auth.uid()");
   });
@@ -68,7 +70,9 @@ describe("social persistence and public-visibility contracts", () => {
     expect(securityMigration).toContain("primary key (follower_id, producer_id)");
     expect(socialMigration).toContain("primary key (blocker_id, blocked_id)");
     expect(socialMigration).toContain("primary key (muter_id, muted_id)");
-    expect(community).toContain('upsert({ sender_id: user.id, receiver_id: authorId, status: "pending" }');
+    expect(producer).toContain('from("social_friend_requests")');
+    expect(producer).toContain('insert({ requester_id: user.id, addressee_id: producer.id, status: "pending" })');
+    expect(producer).toContain('update({ status }).eq("requester_id", producer.id).eq("addressee_id", user.id)');
   });
 
   it("persists notifications through server-side social triggers and keeps notification reads user-scoped", () => {

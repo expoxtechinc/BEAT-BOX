@@ -80,12 +80,23 @@ export default function Messages() {
   const activeOther = profileFromRelation(activeConversation?.conversation_members?.find(member => member.user_id !== user?.id)?.profiles);
 
   const startConversation = async (profile: ProfileRow) => {
-    if (!user) return;
+    if (!user || profile.id === user.id) return;
     setBusy(true); setNotice(null);
+    const existing = conversations.find(conversation => {
+      const ids = conversation.conversation_members?.map(member => member.user_id) || [];
+      return ids.includes(user.id) && ids.includes(profile.id) && ids.length === 2;
+    });
+    if (existing) {
+      setQuery(""); setProfiles([]); setActiveId(existing.id); setBusy(false); return;
+    }
     const { data: conversation, error } = await supabase.from("conversations").insert({}).select("id, updated_at").single();
-    if (error || !conversation) { setNotice(error?.message || "Unable to start conversation."); setBusy(false); return; }
+    if (error || !conversation) { setNotice(error?.message || "Unable to start a private conversation. Try again while online."); setBusy(false); return; }
     const { error: memberError } = await supabase.from("conversation_members").insert([{ conversation_id: conversation.id, user_id: user.id }, { conversation_id: conversation.id, user_id: profile.id }]);
-    if (memberError) { setNotice(memberError.message); setBusy(false); return; }
+    if (memberError) {
+      await supabase.from("conversations").delete().eq("id", conversation.id);
+      setNotice(memberError.message.includes("recursion") ? "Private messaging is temporarily unavailable while access rules refresh. Please retry." : "This profile cannot receive a private conversation right now.");
+      setBusy(false); return;
+    }
     setQuery(""); setProfiles([]); await loadConversations(); setActiveId(conversation.id); setBusy(false);
   };
 
@@ -93,7 +104,7 @@ export default function Messages() {
     if (!user || !requestedRecipient || activeId || requestedRecipient === user.id) return;
     void supabase.from("profiles").select("id, username, display_name, avatar_url").eq("id", requestedRecipient).maybeSingle().then(({ data }) => {
       if (data) void startConversation(data as ProfileRow);
-      else setNotice("That BeatBox profile is unavailable or cannot receive messages.");
+      else setNotice("That BeatBox member could not be found. Search by username or display name and try again.");
     });
   }, [user?.id, requestedRecipient, activeId]);
 
