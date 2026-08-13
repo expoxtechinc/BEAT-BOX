@@ -525,6 +525,6 @@
 
 ## GitHub release synchronization
 
-- [ ] Verify the completed creator-platform release files and remote repository configuration
-- [ ] Commit and push all completed bulk publishing, collections, mobile-shell, migration, test, and release-note changes to expoxtechinc/BEAT-BOX
-- [ ] Verify the exact remote commit on expoxtechinc/BEAT-BOX and report the synchronization result
+- [x] Verify the completed creator-platform release files and remote repository configuration
+- [x] Commit and push all completed bulk publishing, collections, mobile-shell, migration, test, and release-note changes to expoxtechinc/BEAT-BOX
+- [x] Verify the exact remote commit on expoxtechinc/BEAT-BOX and report the synchronization result
