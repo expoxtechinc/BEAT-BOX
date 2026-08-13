@@ -464,3 +464,16 @@
 - [x] Create and validate a reusable BeatBox social-interface skill using skill-creator
 - [x] Run regression, strict TypeScript, production build, and visual checks
 - [x] Push the validated project changes to expoxtechinc/BEAT-BOX and prepare deployment guidance
+
+## Stories, creator tools, and engineering assets
+- [ ] Implement full story viewer with segmented progress bars, timed playback, pause/advance controls, and quick reactions
+- [ ] Add notification badges and a professional creator dashboard surface
+- [ ] Add mobile bottom-sheet post creation with privacy selection and media attachments
+- [ ] Refine the mobile circular/icon arrangement shown in the supplied reference
+- [ ] Add structured uploads for plugins, soundboards, soundtracks, loops, sample packs, and engineering files
+- [ ] Add storage metadata, access rules, regression tests, responsive verification, and production deployment synchronization
+
+## BEAT-BOX repository parity verification
+- [x] Compare add-friend, confirm-friend, unfriend, follow, privacy, and professional-mode source between the active checkpoint and BEAT-BOX main
+- [x] Synchronize any missing validated social features to expoxtechinc/BEAT-BOX main
+- [x] Report the exact commit and deployment status before continuing the remaining feature work
