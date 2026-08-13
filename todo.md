@@ -537,4 +537,4 @@
 - [x] Preserve private-message membership, attachment, read-state, and unavailable-user safeguards while improving conversation initiation and message responsiveness
 - [x] Configure AI responses to use server-only `GEMINI_API_KEY` with secure fallback behavior, never browser-exposed `VITE_GEMINI_API_KEY`
 - [x] Keep the current BeatBox information hierarchy and adaptive phone/tablet/desktop layout stable while placing Story and AI controls in established surfaces
-- [ ] Add migrations, RLS/storage safeguards, regression coverage, responsive visual checks, production validation, and GitHub synchronization for the release
+- [x] Add migrations, RLS/storage safeguards, regression coverage, responsive visual checks, production validation, and GitHub synchronization for the release
