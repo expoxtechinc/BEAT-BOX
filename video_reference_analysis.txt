@@ -1,0 +1,47 @@
+Starting video analysis...
+Submitting video analysis task...
+Task submitted (ID: video-analysis-d218a617-1c9d-49a3-be52-0c95e7f422f4)
+[8s] Status: Analyzing video content with AI...
+[30s] Status: Analysis completed
+[30s] Analysis completed!
+Full analysis result saved to: /home/ubuntu/video_Screen_Recording_20260813_085526_analysis_20260813_090223.md
+Note: This tool performs AI-based visual and audio analysis, not verbatim transcription. For detailed speech transcription, use `manus-speech-to-text` instead.
+Analysis result:
+
+Based on the visual evidence from the video, here is a detailed description of the Facebook mobile app's structure and behavior:
+
+### **1. Navigation & Header**
+*   **Top Header:** Contains the "facebook" logo on the left, a **Search** (magnifying glass) icon, and a **Messenger** icon (with a red notification badge) on the right.
+*   **Primary Navigation Tabs:** A horizontal bar below the header allows switching between core sections: Home (Feed), Friends, Watch (Video), Marketplace, Notifications, and the Main Menu.
+*   **Bottom Navigation Bar:** System-level navigation for the mobile device (Back, Home, Recent Apps) is visible at the bottom of the screen.
+
+### **2. Story & Reel Rails**
+*   **Story Rail:** Located at the top of the Home feed. It features a horizontal scroll of rectangular cards. 
+    *   The first card is a **"Create story"** button with the user's profile picture and a "+" icon.
+    *   Subsequent cards represent friends' stories, showing a preview image, the friend's name, and sometimes a numerical badge (e.g., "3") indicating multiple updates.
+*   **Story Viewer:** Tapping a story opens a full-screen vertical interface. It includes segmented progress bars at the top, navigation arrows on the sides, a "Send message" input at the bottom, and quick-reaction emojis (e.g., heart, laughing, wow).
+
+### **3. Feed Card Hierarchy**
+Individual posts in the feed follow a consistent vertical stack:
+*   **Header:** Profile picture, name of the poster (or page), a "Follow" button (if applicable), timestamp (e.g., "14h"), and a privacy icon (e.g., globe for public).
+*   **Content:** Textual description (often including blue-colored mentions/links and emojis), followed by media (images or videos).
+*   **Interaction Bar:** A row at the bottom of the card with icons for **Like**, **Comment**, **Send**, and **Share**.
+
+### **4. Post Creation Flow**
+*   **Feed Entry Point:** A "What's on your mind?" text box sits between the navigation tabs and the story rail, accompanied by a "Photo" icon.
+*   **Story Creation Screen:** A "New story" interface provides a grid layout of the device's media gallery. Top-level buttons allow for specific story types: **Text**, **Music**, and **Camera**. A "Select multiple" button allows batch uploading.
+
+### **5. Messaging Interface**
+*   **Inbox:** A list of active conversations showing profile pictures with status indicators (e.g., green dot for active), names, a snippet of the last message, and time elapsed.
+*   **Direct Message (DM):** A clean chat interface with a header showing the recipient's profile and a "View profile" button. The bottom contains a text input field flanked by icons for the camera, gallery, stickers, and microphone (voice notes).
+
+### **6. Menus & Advanced Navigation**
+*   **Main Menu (Hamburger Menu):** A comprehensive grid of shortcuts including Groups, Marketplace, Reels, Pages, Saved, Memories, etc. It also features a "Switch account" dropdown and a vertical list for **Settings & Privacy**, **Help & Support**, and **Log out**.
+*   **Professional Dashboard:** A specialized view for creators showing high-level **Insights** (Views, Engagement, Net Followers) with percentage changes over the last 28 days.
+*   **Tools Menu:** A vertical list of management features like **Monetization**, **Stars**, **Comments manager**, and **Ad Center**, each accompanied by a descriptive icon.
+
+### **7. Mobile UI & Interaction Patterns**
+*   **Scrolling:** The app utilizes vertical scrolling for the main feed and lists, and horizontal scrolling for story/reel rails.
+*   **Modals:** Menus (like the account switcher) and creation screens appear as modal overlays that slide up from the bottom or cover the screen.
+*   **Visual Feedback:** Active tabs in the navigation bar are highlighted in blue. Notification badges (red circles with numbers) provide immediate visual cues for new activity.
+*   **Reels Interface:** A dedicated vertical video feed with a right-aligned stack of interaction buttons (Like, Comment, Share) and creator information overlaid at the bottom.
