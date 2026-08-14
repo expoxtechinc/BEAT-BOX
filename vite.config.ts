@@ -158,6 +158,13 @@ const plugins = [
   vitePluginManusRuntime(),
   VitePWA({
     registerType: "autoUpdate",
+    injectRegister: false,
+    workbox: {
+      clientsClaim: true,
+      skipWaiting: true,
+      cleanupOutdatedCaches: true,
+      navigateFallbackDenylist: [/^\/api\//],
+    },
     manifest: {
       name: "BeatBox — Liberia's Beat Marketplace",
       short_name: "BeatBox",

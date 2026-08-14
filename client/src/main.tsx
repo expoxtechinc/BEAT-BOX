@@ -50,7 +50,22 @@ const trpcClient = trpc.createClient({
 });
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => { void navigator.serviceWorker.register("/sw.js").catch(() => undefined); });
+  let reloadingForServiceWorker = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloadingForServiceWorker) return;
+    reloadingForServiceWorker = true;
+    window.location.reload();
+  });
+
+  window.addEventListener("load", () => {
+    void navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then(async registration => {
+        registration.waiting?.postMessage({ type: "SKIP_WAITING" });
+        await registration.update();
+      })
+      .catch(() => undefined);
+  });
 }
 
 createRoot(document.getElementById("root")!).render(

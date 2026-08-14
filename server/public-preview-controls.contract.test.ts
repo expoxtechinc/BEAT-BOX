@@ -33,4 +33,15 @@ describe("public beat stream controls", () => {
     expect(detail).toContain("Anyone can still stream this full public release without an account.");
     expect(detail).toContain("requestSecureDownload(beat.id)");
   });
+
+  it("refreshes stale mobile clients so legacy cards receive the universal play control", () => {
+    const main = read("client/src/main.tsx");
+    expect(main).toContain('register("/sw.js", { updateViaCache: "none" })');
+    expect(main).toContain('navigator.serviceWorker.addEventListener("controllerchange"');
+    expect(main).toContain("window.location.reload()");
+
+    const config = read("vite.config.ts");
+    expect(config).toContain("skipWaiting: true");
+    expect(config).toContain("cleanupOutdatedCaches: true");
+  });
 });

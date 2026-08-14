@@ -637,3 +637,11 @@
 - [x] Verify the current repository is clean and matches expoxtechinc/BEAT-BOX main after the full-stream and play-control changes
 - [x] Confirm the mobile-first app shell and public playback controls remain responsive for the Vercel release
 - [x] Confirm the configured production aliases are reachable and report the final repository/deployment status
+
+## Legacy beat-card universal playback repair
+
+- [x] Diagnose why existing beat cards with uploaded audio can render a processing message without a visible play control
+- [x] Ensure every legacy and new beat card renders an accessible play control and invokes controlled full-stream resolution from its uploaded audio
+- [x] Preserve truthful unavailable messaging only when no source audio exists or the controlled stream endpoint reports a real media error
+- [x] Add regression coverage and mobile visual validation for the previously missing legacy-card play control
+- [x] Synchronize the legacy playback repair to expoxtechinc/BEAT-BOX and save a checkpoint
