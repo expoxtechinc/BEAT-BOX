@@ -65,7 +65,7 @@ function PublishContent({ sellerId, sellerName }: { sellerId: string; sellerName
 function FileField({ label, accept, file, setFile, required = false }: { label: string; accept: string; file: File | null; setFile: (file: File | null) => void; required?: boolean }) { return <label className="file-input"><Upload size={18} /><b>{label}</b><span>{file?.name || "Choose a file"}</span><input type="file" accept={accept} required={required} onChange={e => setFile(e.target.files?.[0] || null)} /></label>; }
 
 type QueueStatus = "queued" | "uploading" | "published" | "failed";
-type BeatQueueItem = { id: string; file: File; title: string; status: QueueStatus; progress: number; error?: string };
+type BeatQueueItem = { id: string; file: File; preview: File | null; title: string; status: QueueStatus; progress: number; error?: string };
 type CreatorLibraryItem = { id: string; kind: "beat" | "content"; title: string; detail: string };
 
 const queueTitle = (file: File) => file.name.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 120) || "Untitled beat";
@@ -89,7 +89,7 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
     if (accepted.length !== selected.length) setMessage("Only audio files were added to the beat queue.");
     const capped = accepted.slice(0, 20);
     if (accepted.length > 20) setMessage("BeatBox can prepare up to 20 beats in one batch. The first 20 audio files were added.");
-    setItems(capped.map(file => ({ id: crypto.randomUUID(), file, title: queueTitle(file), status: "queued", progress: 0 })));
+    setItems(capped.map(file => ({ id: crypto.randomUUID(), file, preview: null, title: queueTitle(file), status: "queued", progress: 0 })));
   };
 
   const updateItem = (id: string, update: Partial<BeatQueueItem>) => setItems(current => current.map(item => item.id === id ? { ...item, ...update } : item));
@@ -99,6 +99,7 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
     const selected = items.filter(item => item.status === "queued" || item.status === "failed");
     if (!selected.length) { setMessage("Add 1–20 audio files or retry the failed items before starting this batch."); return; }
     if (!cover) { setMessage("Choose one shared cover picture for this batch. You can change artwork on each beat later."); return; }
+    if (!isFree && selected.some(item => !item.preview)) { setMessage("Add a separate public preview for every paid beat before publishing. The private master is never used as a preview."); return; }
     if (!navigator.onLine) { setMessage("Reconnect before uploading media. Your selected files remain in this browser until you leave this page."); return; }
     const oversized = selected.find(item => item.file.size > 200 * 1024 * 1024);
     if (oversized) { setMessage(`${oversized.file.name} is larger than the 200 MB beat limit.`); return; }
@@ -115,9 +116,13 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
         updateItem(item.id, { status: "uploading", progress: 0, error: undefined });
         try {
           const masterPath = `${creatorId}/${crypto.randomUUID()}-${item.file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-          await uploadResumable({ bucket: "beat-masters", objectPath: masterPath, file: item.file, onProgress: (progress, uploaded, total) => { updateItem(item.id, { progress }); setMessage(`Uploading ${item.title}: ${progress}% · ${formatUploadSize(uploaded)} of ${formatUploadSize(total)}. Interrupted uploads resume automatically.`); } });
+          await uploadResumable({ bucket: "beat-masters", objectPath: masterPath, file: item.file, onProgress: (progress, uploaded, total) => { updateItem(item.id, { progress: Math.round(progress * 0.8) }); setMessage(`Uploading private master for ${item.title}: ${progress}% · ${formatUploadSize(uploaded)} of ${formatUploadSize(total)}. Interrupted uploads resume automatically.`); } });
+          const previewFile = isFree ? item.file : item.preview;
+          if (!previewFile) throw new Error("A paid beat needs its own public preview before it can be published.");
+          const previewPath = `${creatorId}/${crypto.randomUUID()}-${previewFile.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+          await uploadResumable({ bucket: "beat-previews", objectPath: previewPath, file: previewFile, onProgress: progress => { updateItem(item.id, { progress: 80 + Math.round(progress * 0.2) }); setMessage(`Uploading public preview for ${item.title}: ${progress}%. Guests can listen without signing in once it is published.`); } });
           const amount = isFree ? 0 : Number(price) || 0;
-          const { data: beat, error: beatError } = await supabase.from("beats").insert({ seller_id: creatorId, title: item.title.trim(), slug: slugify(item.title), price: amount, is_free: isFree, producer: creatorName, genre: genre.trim() || null, cover_image_url: coverPath, preview_url: masterPath, master_url: masterPath, status: "published", published_at: new Date().toISOString() }).select("id").single();
+          const { data: beat, error: beatError } = await supabase.from("beats").insert({ seller_id: creatorId, title: item.title.trim(), slug: slugify(item.title), price: amount, is_free: isFree, producer: creatorName, genre: genre.trim() || null, cover_image_url: coverPath, preview_url: previewPath, master_url: masterPath, status: "published", published_at: new Date().toISOString() }).select("id").single();
           if (beatError) throw beatError;
           if (beat) await supabase.from("beat_licenses").insert([
             { beat_id: beat.id, license_code: "basic", name: "Basic", price: amount, terms: "Non-exclusive use under the producer’s displayed terms." },
@@ -136,7 +141,64 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
     } finally { setBusy(false); }
   };
 
-  return <div className="studio-stack"><section className="dashboard-panel bulk-upload-panel"><div className="studio-panel-heading"><div><p className="eyebrow"><span /> Batch publishing</p><h2>Release up to 20 beats at once</h2><p>Choose audio files, give every beat its own clear title, and use one shared cover. Each upload uses resumable storage, records per-item progress, and keeps paid masters private.</p></div><span className="queue-count">{items.length}/20 selected</span></div><div className="bulk-controls"><label className="file-input file-input--wide"><Upload size={18} /><b>Select 1–20 audio files</b><span>{items.length ? `${items.length} beat${items.length === 1 ? "" : "s"} ready to review` : "MP3, WAV, M4A, FLAC and other browser-supported audio"}</span><input type="file" accept="audio/*" multiple disabled={busy} onChange={event => setFiles(event.target.files)} /></label><FileField label="Shared cover picture" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} required /><label>Genre<input value={genre} placeholder="Afrobeats, Hipco, Gospel…" disabled={busy} onChange={event => setGenre(event.target.value)} /></label><label>Price (USD)<input type="number" min="0" step="0.01" disabled={busy || isFree} value={price} onChange={event => setPrice(event.target.value)} /></label><label className="checkbox-row"><input type="checkbox" checked={isFree} disabled={busy} onChange={event => setIsFree(event.target.checked)} /> Free download for all beats in this batch</label></div>{items.length > 0 && <><div className="bulk-queue" aria-live="polite">{items.map((item, index) => <div className={`bulk-queue__item bulk-queue__item--${item.status}`} key={item.id}><span className="bulk-queue__order">{index + 1}</span><div className="bulk-queue__content"><input aria-label={`Title for ${item.file.name}`} value={item.title} disabled={busy} maxLength={120} onChange={event => updateItem(item.id, { title: event.target.value })} /><small>{formatUploadSize(item.file.size)} · {item.status === "published" ? "Published" : item.status === "failed" ? item.error || "Needs retry" : item.status === "uploading" ? `Uploading ${item.progress}%` : "Ready"}</small>{item.status === "uploading" && <progress max="100" value={item.progress}>{item.progress}%</progress>}</div>{item.status === "published" ? <CheckCircle2 size={18} aria-label="Published" /> : item.status === "failed" ? <XCircle size={18} aria-label="Needs retry" /> : <button type="button" className="text-button" disabled={busy} onClick={() => removeItem(item.id)}>Remove</button>}</div>)}</div><div className="upload-progress bulk-upload-progress"><div className="upload-progress__label"><span>{busy ? `Batch in progress · ${completedCount} published` : `${completedCount} published · ${queuedCount} ready or retryable`}</span><b>{averageProgress}%</b></div><progress max="100" value={averageProgress}>{averageProgress}%</progress><small>Do not close this tab while the batch is moving. If a connection drops, press retry and the individual file resumes where storage permits.</small></div></>}<div className="studio-action-row"><button type="button" className="button" disabled={busy || !items.length} onClick={() => void publishQueue()}>{busy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}{busy ? "Publishing batch" : completedCount ? "Retry remaining beats" : "Publish batch"}</button>{items.length > 0 && <button type="button" className="button button--outline" disabled={busy} onClick={() => { setItems([]); setCover(null); setMessage(null); }}>Clear selection</button>}</div>{message && <p className={message.includes("published") || message.includes("now published") ? "form-success" : "form-error"}>{message}</p>}</section><section className="dashboard-panel studio-tip"><Sparkles size={18} /><div><h3>Make every drop easy to find</h3><p>After publishing, group related beats in an album, add an artwork-led podcast series, then share the release with your community. These are creator-owned records, not demo data.</p></div></section></div>;
+  return (
+    <div className="studio-stack">
+      <section className="dashboard-panel bulk-upload-panel">
+        <div className="studio-panel-heading">
+          <div>
+            <p className="eyebrow"><span /> Batch publishing</p>
+            <h2>Release up to 20 beats at once</h2>
+            <p>Choose audio files, give every beat its own clear title, and use one shared cover. Every new listing receives a guest-playable preview while private paid masters remain protected.</p>
+          </div>
+          <span className="queue-count">{items.length}/20 selected</span>
+        </div>
+
+        <div className="bulk-controls">
+          <label className="file-input file-input--wide">
+            <Upload size={18} />
+            <b>Select 1–20 audio files</b>
+            <span>{items.length ? `${items.length} beat${items.length === 1 ? "" : "s"} ready to review` : "MP3, WAV, M4A, FLAC and other browser-supported audio"}</span>
+            <input type="file" accept="audio/*" multiple disabled={busy} onChange={event => setFiles(event.target.files)} />
+          </label>
+          <FileField label="Shared cover picture" accept="image/jpeg,image/png,image/webp" file={cover} setFile={setCover} required />
+          <label>Genre<input value={genre} placeholder="Afrobeats, Hipco, Gospel…" disabled={busy} onChange={event => setGenre(event.target.value)} /></label>
+          <label>Price (USD)<input type="number" min="0" step="0.01" disabled={busy || isFree} value={price} onChange={event => setPrice(event.target.value)} /></label>
+          <label className="checkbox-row"><input type="checkbox" checked={isFree} disabled={busy} onChange={event => setIsFree(event.target.checked)} /> Free download for all beats in this batch</label>
+        </div>
+
+        {items.length > 0 && <>
+          {!isFree && <p className="bulk-preview-guidance"><strong>Public preview required:</strong> add a separate short or watermarked sample for each paid beat. Guests can play the sample, but never the private master.</p>}
+          <div className="bulk-queue" aria-live="polite">
+            {items.map((item, index) => (
+              <div className={`bulk-queue__item bulk-queue__item--${item.status}`} key={item.id}>
+                <span className="bulk-queue__order">{index + 1}</span>
+                <div className="bulk-queue__content">
+                  <input aria-label={`Title for ${item.file.name}`} value={item.title} disabled={busy} maxLength={120} onChange={event => updateItem(item.id, { title: event.target.value })} />
+                  {!isFree && item.status !== "published" && <label className="bulk-preview-input"><span>Public preview</span><input aria-label={`Public preview for ${item.title || item.file.name}`} type="file" accept="audio/*" disabled={busy} onChange={event => updateItem(item.id, { preview: event.target.files?.[0] || null })} /><small>{item.preview ? `${item.preview.name} ready for guests` : "Required for paid beats"}</small></label>}
+                  {isFree && <small className="bulk-preview-ready">This free track is copied to the separate public-preview location for guest playback.</small>}
+                  <small>{formatUploadSize(item.file.size)} · {item.status === "published" ? "Published" : item.status === "failed" ? item.error || "Needs retry" : item.status === "uploading" ? `Uploading ${item.progress}%` : "Ready"}</small>
+                  {item.status === "uploading" && <progress max="100" value={item.progress}>{item.progress}%</progress>}
+                </div>
+                {item.status === "published" ? <CheckCircle2 size={18} aria-label="Published" /> : item.status === "failed" ? <XCircle size={18} aria-label="Needs retry" /> : <button type="button" className="text-button" disabled={busy} onClick={() => removeItem(item.id)}>Remove</button>}
+              </div>
+            ))}
+          </div>
+          <div className="upload-progress bulk-upload-progress">
+            <div className="upload-progress__label"><span>{busy ? `Batch in progress · ${completedCount} published` : `${completedCount} published · ${queuedCount} ready or retryable`}</span><b>{averageProgress}%</b></div>
+            <progress max="100" value={averageProgress}>{averageProgress}%</progress>
+            <small>Do not close this tab while the batch is moving. Each listing uploads a private master plus a separate guest-playable preview.</small>
+          </div>
+        </>}
+
+        <div className="studio-action-row">
+          <button type="button" className="button" disabled={busy || !items.length} onClick={() => void publishQueue()}>{busy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}{busy ? "Publishing batch" : completedCount ? "Retry remaining beats" : "Publish batch"}</button>
+          {items.length > 0 && <button type="button" className="button button--outline" disabled={busy} onClick={() => { setItems([]); setCover(null); setMessage(null); }}>Clear selection</button>}
+        </div>
+        {message && <p className={message.includes("published") || message.includes("now published") ? "form-success" : "form-error"}>{message}</p>}
+      </section>
+      <section className="dashboard-panel studio-tip"><Sparkles size={18} /><div><h3>Make every drop easy to find</h3><p>After publishing, group related beats in an album, add an artwork-led podcast series, then share the release with your community. These are creator-owned records, not demo data.</p></div></section>
+    </div>
+  );
 }
 
 function CollectionComposer({ creatorId }: { creatorId: string }) {

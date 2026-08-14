@@ -604,3 +604,11 @@
 - [x] Preserve sign-in requirements for downloads, favorites, payment requests, publishing, and other account-controlled actions with clear guidance for guests
 - [x] Add regression tests and responsive validation for guest preview playback, paid-preview separation, and protected actions
 - [x] Synchronize the guest preview update to expoxtechinc/BEAT-BOX and save a checkpoint
+
+## Universal preview playback enforcement
+
+- [x] Audit every beat upload and bulk-publish flow to find paths that could create a public listing without a guest-playable preview
+- [x] Enforce preview-ready publishing for new paid beat listings while keeping the master private and never substituting it as public preview media
+- [x] Render a consistent visible play control or truthful preview-unavailable state across existing catalog, producer, dashboard, collection, and detail surfaces
+- [x] Add upload-to-catalog regression coverage and responsive validation for guest preview playback and sign-in-gated downloads
+- [x] Synchronize the universal preview enforcement update to expoxtechinc/BEAT-BOX and save a checkpoint

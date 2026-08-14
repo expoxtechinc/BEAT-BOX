@@ -8,10 +8,15 @@ const read = (relative: string) => fs.readFileSync(path.join(root, relative), "u
 describe("BeatBox free and paid media entitlement boundary", () => {
   it("keeps a paid master separate from its public preview at upload time", () => {
     const dashboard = read("client/src/pages/Dashboards.tsx");
+    const creatorHub = read("client/src/pages/CreatorHub.tsx");
     expect(dashboard).toContain("Paid beats require a separate short or watermarked preview");
     expect(dashboard).toContain('upload("beat-masters", beatFile, "beat")');
     expect(dashboard).toContain('upload("beat-previews", form.is_free ? beatFile : previewFile!, "preview")');
     expect(dashboard).not.toContain("preview_url: mainBeatPath, master_url: mainBeatPath");
+    expect(creatorHub).toContain("Add a separate public preview for every paid beat");
+    expect(creatorHub).toContain('bucket: "beat-previews"');
+    expect(creatorHub).toContain("preview_url: previewPath, master_url: masterPath");
+    expect(creatorHub).not.toContain("preview_url: masterPath, master_url: masterPath");
   });
 
   it("does not sign a legacy paid master as a playback preview", () => {
