@@ -4,9 +4,8 @@ import { supabase } from "./supabase";
 const externalUrl = (value: string) => /^https?:\/\//i.test(value);
 
 export async function toDisplayBeat(beat: Beat): Promise<Beat> {
-  // A paid master is never an acceptable browser preview. Older listings that
-  // reused the master path intentionally show no audio until the seller adds a
-  // separate preview, rather than exposing a private original through a link.
+  // Guest listening is served only from the separately stored public stream
+  // rendition. A paid master never becomes a browser stream or signed media URL.
   const safePreviewPath = beat.preview_url && (beat.is_free || beat.preview_url !== beat.master_url)
     ? beat.preview_url
     : null;

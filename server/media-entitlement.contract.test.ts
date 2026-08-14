@@ -5,21 +5,21 @@ import { describe, expect, it } from "vitest";
 const root = path.resolve(import.meta.dirname, "..");
 const read = (relative: string) => fs.readFileSync(path.join(root, relative), "utf8");
 
-describe("BeatBox free and paid media entitlement boundary", () => {
-  it("keeps a paid master separate from its public preview at upload time", () => {
+describe("BeatBox full-stream and download entitlement boundary", () => {
+  it("keeps every new beat master separate from its public full-stream copy at upload time", () => {
     const dashboard = read("client/src/pages/Dashboards.tsx");
     const creatorHub = read("client/src/pages/CreatorHub.tsx");
-    expect(dashboard).toContain("Paid beats require a separate short or watermarked preview");
     expect(dashboard).toContain('upload("beat-masters", beatFile, "beat")');
-    expect(dashboard).toContain('upload("beat-previews", form.is_free ? beatFile : previewFile!, "preview")');
+    expect(dashboard).toContain('upload("beat-previews", beatFile, "stream")');
+    expect(dashboard).toContain("separate full-length guest stream");
     expect(dashboard).not.toContain("preview_url: mainBeatPath, master_url: mainBeatPath");
-    expect(creatorHub).toContain("Add a separate public preview for every paid beat");
     expect(creatorHub).toContain('bucket: "beat-previews"');
+    expect(creatorHub).toContain("Full guest streaming:");
     expect(creatorHub).toContain("preview_url: previewPath, master_url: masterPath");
     expect(creatorHub).not.toContain("preview_url: masterPath, master_url: masterPath");
   });
 
-  it("does not sign a legacy paid master as a playback preview", () => {
+  it("does not sign a private master as a guest stream", () => {
     const marketplace = read("client/src/lib/marketplace.ts");
     expect(marketplace).toContain("beat.is_free || beat.preview_url !== beat.master_url");
     expect(marketplace).toContain('supabase.storage.from("beat-previews")');

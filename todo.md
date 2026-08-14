@@ -612,3 +612,12 @@
 - [x] Render a consistent visible play control or truthful preview-unavailable state across existing catalog, producer, dashboard, collection, and detail surfaces
 - [x] Add upload-to-catalog regression coverage and responsive validation for guest preview playback and sign-in-gated downloads
 - [x] Synchronize the universal preview enforcement update to expoxtechinc/BEAT-BOX and save a checkpoint
+
+## Full guest streaming with protected downloads
+
+- [x] Audit beat media fields, public playback resolution, storage policies, and download routes for safe full-length guest streaming
+- [x] Make existing public beats stream their full released audio to guests without substituting or exposing the private original master
+- [x] Update new single and bulk beat publishing flows to create a separately stored stream rendition that guests can play in full
+- [x] Preserve sign-in and verified payment/delivery entitlement requirements for all beat download controls and signed master URLs
+- [x] Add regression coverage and responsive validation for guest full streaming, private-master isolation, and protected downloads
+- [x] Synchronize the full-stream release to expoxtechinc/BEAT-BOX and save a checkpoint

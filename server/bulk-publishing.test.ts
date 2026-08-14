@@ -13,13 +13,13 @@ describe("bulk publishing and creator collections", () => {
     expect(studio).toContain('bucket: "beat-masters"');
     expect(studio).toContain('bucket: "beat-previews"');
     expect(studio).toContain('status: "completed_with_errors"');
-    expect(studio).toContain("preview: File | null");
-    expect(studio).toContain("Add a separate public preview for every paid beat");
+    expect(studio).not.toContain("preview: File | null");
+    expect(studio).toContain("Full guest streaming:");
     expect(studio).toContain("preview_url: previewPath, master_url: masterPath");
     expect(studio).not.toContain("preview_url: masterPath, master_url: masterPath");
     expect(studio).toContain("master_url: masterPath");
     expect(studio).toContain("is_free: isFree");
-    expect(studio).toContain("Each listing uploads a private master plus a separate guest-playable preview");
+    expect(studio).toContain("Each listing uploads a private master plus a separate full guest-stream copy");
   });
 
   it("models albums and podcasts as creator-owned collections instead of synthetic content", () => {

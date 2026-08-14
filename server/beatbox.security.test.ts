@@ -51,10 +51,10 @@ describe("BeatBox secure download boundary", () => {
     expect(dashboards).toContain("const [cover, setCover]");
     expect(dashboards).toContain("const [beatFile, setBeatFile]");
     expect(dashboards).toContain("title");
-    expect(dashboards).toContain("const [previewFile, setPreviewFile]");
-    expect(dashboards).toContain("Paid beats require a separate short or watermarked preview");
+    expect(dashboards).not.toContain("const [previewFile, setPreviewFile]");
+    expect(dashboards).toContain("separate full-length guest stream");
     expect(dashboards).toContain('upload("beat-masters", beatFile, "beat")');
-    expect(dashboards).toContain('upload("beat-previews", form.is_free ? beatFile : previewFile!, "preview")');
+    expect(dashboards).toContain('upload("beat-previews", beatFile, "stream")');
     expect(marketplace).toContain("beat.is_free || beat.preview_url !== beat.master_url");
     expect(marketplace).toContain("requestSecureDownload");
   });

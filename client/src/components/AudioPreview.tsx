@@ -31,7 +31,7 @@ export function AudioPreview({
   }, [volume]);
 
   if (!src) {
-    return <span className="preview-unavailable">Preview will be available after the producer uploads it.</span>;
+    return <span className="preview-unavailable">Full stream will be available after the producer publishes it.</span>;
   }
 
   const toggle = async () => {
@@ -44,7 +44,7 @@ export function AudioPreview({
     }
   };
 
-  const actionLabel = `${playing ? "Pause" : "Play preview"} for ${title}`;
+  const actionLabel = `${playing ? "Pause" : "Play full stream"} for ${title}`;
 
   return (
     <div className={`audio-preview ${compact ? "audio-preview--compact" : ""}`} data-preview-access={publicPreview ? "guest" : "account"}>
@@ -72,12 +72,12 @@ export function AudioPreview({
       </button>
       <div className="audio-preview__track-wrap">
         <div className="audio-preview__track" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
-        {!compact && <span className={`audio-preview__caption ${publicPreview ? "audio-preview__caption--public" : ""}`}>{publicPreview ? "Public preview · No sign-in needed to listen" : "Watermarked preview"}</span>}
+        {!compact && <span className={`audio-preview__caption ${publicPreview ? "audio-preview__caption--public" : ""}`}>{publicPreview ? "Full stream · No sign-in needed to listen" : "Watermarked stream"}</span>}
       </div>
-      <button type="button" className="audio-preview__mute" onClick={() => setVolume(value => (value > 0 ? 0 : 0.8))} aria-label="Toggle preview volume">
+      <button type="button" className="audio-preview__mute" onClick={() => setVolume(value => (value > 0 ? 0 : 0.8))} aria-label="Toggle stream volume">
         {volume > 0 ? <Volume2 size={15} /> : <VolumeX size={15} />}
       </button>
-      {!compact && <input className="audio-preview__volume" aria-label="Preview volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={event => setVolume(Number(event.target.value))} />}
+      {!compact && <input className="audio-preview__volume" aria-label="Stream volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={event => setVolume(Number(event.target.value))} />}
     </div>
   );
 }
