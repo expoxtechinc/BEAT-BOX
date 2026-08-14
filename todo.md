@@ -568,3 +568,15 @@
 - [x] Isolate `/api/health` from the Express bundle and statically import the shared Express app for other API calls so Vercel includes its server modules at runtime
 - [x] Prebundle the shared Express API handler into Vercel’s `/api/index.js` function artifact so Node never resolves extensionless internal server imports at runtime
 - [x] Validate the production `/api/health` response and record Gemini/Supabase service status without exposing secrets
+
+## WhatsApp commerce, authentication, and offline-lite continuation
+
+- [x] Inspect the existing Supabase profile, marketplace purchase-request, Google OAuth, AI chat, and PWA contracts before extending them
+- [x] Add an owner-controlled WhatsApp contact setting with validation, privacy-safe public visibility, and profile contact affordances
+- [x] Add a truthful off-platform payment-reference submission workflow that records amount, reference, sent-at time, and buyer notes without marking payments successful
+- [x] Build seller-scoped WhatsApp purchase handoff links that compose an order summary only after explicit buyer submission
+- [x] Show safe seller contact and purchase instructions on eligible public sale listings while preserving private contact fields and paid-master protections
+- [x] Improve offline-lite behavior using cached public shell/content and clear online-required states for uploads, authentication, payments, messages, and fresh data
+- [x] Verify Google OAuth initiation, AI provider readiness and authentication guard, privacy boundaries, purchase-reference persistence contracts, offline-lite cache boundaries, mobile layout, tests, and production build
+- [ ] Perform one user-controlled, authenticated production AI chat completion after signing in; no account or AI response will be fabricated for this check
+- [ ] Synchronize the completed enhancement to expoxtechinc/BEAT-BOX and save a checkpoint

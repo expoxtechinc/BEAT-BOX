@@ -155,7 +155,7 @@ export default function Producer() {
     { url: safeExternalUrl(producer.instagram_url), label: "Instagram", icon: <Instagram size={15} /> },
     { url: safeExternalUrl(producer.youtube_url), label: "YouTube", icon: <Youtube size={15} /> },
     { url: safeExternalUrl(producer.soundcloud_url), label: "SoundCloud", icon: <Music2 size={15} /> },
-    { url: whatsappUrl(producer.whatsapp), label: "WhatsApp", icon: <ExternalLink size={15} /> },
+    { url: whatsappUrl(producer.whatsapp), label: "WhatsApp chat", icon: <MessageCircle size={15} /> },
   ].filter((social): social is typeof social & { url: string } => social.url !== null);
   const name = producer.producer_name || producer.display_name || "BeatBox producer";
 

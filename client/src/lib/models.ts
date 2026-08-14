@@ -17,6 +17,8 @@ export type Profile = {
   social_links?: Record<string, string> | null;
   privacy_settings?: Record<string, boolean> | null;
   contact_preferences?: Record<string, boolean> | null;
+  whatsapp_number?: string | null;
+  whatsapp_public?: boolean | null;
   role: UserRole | null;
   account_status: "active" | "suspended" | "banned" | null;
   professional_mode?: boolean | null;
