@@ -668,3 +668,11 @@
 - [x] Add a respectful in-app rating prompt that asks for genuine feedback, remembers dismissals, and does not claim or solicit a particular rating
 - [x] Keep the Play Store action disabled until an owner-provided public listing URL is configured; cover all resulting states with regression tests
 - [x] Validate the responsive experience, build, tests, and repository synchronization for the install-and-rating release
+
+## Android Capacitor wrapper and GitHub Actions builds
+
+- [x] Inspect the existing package scripts, Vite production output, branding assets, and repository automation before adding native Android support
+- [x] Add Capacitor with the BeatBox name and `com.sastechinc.beatbox` package ID while preserving the existing web and Vercel deployment behavior
+- [x] Generate the Android project with required network permissions and BeatBox-aligned application icon and splash assets without including any secrets
+- [x] Add GitHub Actions CI to build the web app, synchronize Capacitor, produce a debug APK and unsigned release AAB, and upload both as workflow artifacts
+- [x] Run existing tests, TypeScript check, web build, Capacitor synchronization, and Android debug build; then commit and push the verified project to `main`

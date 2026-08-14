@@ -112,3 +112,18 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# Android local build, IDE, SDK, and signing material (never commit)
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/app/.cxx/
+android/app/src/main/assets/
+android/captures/
+android/local.properties
+android/keystore.properties
+android/**/*.jks
+android/**/*.keystore
+*.keystore
+*.jks
