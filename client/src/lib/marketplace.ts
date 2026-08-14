@@ -4,9 +4,9 @@ import { supabase } from "./supabase";
 const externalUrl = (value: string) => /^https?:\/\//i.test(value);
 
 export async function toDisplayBeat(beat: Beat): Promise<Beat> {
-  // Guest listening is served only from the separately stored public stream
-  // rendition. A paid master never becomes a browser stream or signed media URL.
-  const safePreviewPath = beat.preview_url && (beat.is_free || beat.preview_url !== beat.master_url)
+  // Dedicated stream copies load immediately. A missing or legacy matching path
+  // is resolved on play by the controlled guest-stream function instead.
+  const safePreviewPath = beat.preview_url && beat.preview_url !== beat.master_url
     ? beat.preview_url
     : null;
   const [cover, preview] = await Promise.all([

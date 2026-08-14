@@ -19,7 +19,8 @@ describe("public beat stream controls", () => {
 
   it("uses the guest stream component on every reusable public beat card", () => {
     const card = read("client/src/components/BeatCard.tsx");
-    expect(card).toContain("data-beat-stream={beat.preview_signed_url ? \"available\" : \"unavailable\"}");
+    expect(card).toContain("data-beat-stream={beat.preview_signed_url ? \"available\" : \"resolvable\"}");
+    expect(card).toContain('streamBeatId={beat.id}');
     expect(card).toContain("compact={mode === \"grid\"} publicPreview");
     expect(card).toContain("downloads require sign-in and, for paid beats, verified entitlement.");
   });

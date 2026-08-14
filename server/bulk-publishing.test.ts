@@ -19,7 +19,7 @@ describe("bulk publishing and creator collections", () => {
     expect(studio).not.toContain("preview_url: masterPath, master_url: masterPath");
     expect(studio).toContain("master_url: masterPath");
     expect(studio).toContain("is_free: isFree");
-    expect(studio).toContain("Each listing uploads a private master plus a separate full guest-stream copy");
+    expect(studio).toContain("Each uploaded beat becomes fully playable in the app automatically; no separate preview file is required");
   });
 
   it("models albums and podcasts as creator-owned collections instead of synthetic content", () => {

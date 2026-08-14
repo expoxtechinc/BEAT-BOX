@@ -47,6 +47,7 @@ describe("BeatBox secure download boundary", () => {
   it("keeps a private master separate from the public playback copy", async () => {
     const dashboards = await source("client/src/pages/Dashboards.tsx");
     const marketplace = await source("client/src/lib/marketplace.ts");
+    const guestStream = await source("supabase/functions/guest-stream/index.ts");
 
     expect(dashboards).toContain("const [cover, setCover]");
     expect(dashboards).toContain("const [beatFile, setBeatFile]");
@@ -55,7 +56,10 @@ describe("BeatBox secure download boundary", () => {
     expect(dashboards).toContain("separate full-length guest stream");
     expect(dashboards).toContain('upload("beat-masters", beatFile, "beat")');
     expect(dashboards).toContain('upload("beat-previews", beatFile, "stream")');
-    expect(marketplace).toContain("beat.is_free || beat.preview_url !== beat.master_url");
+    expect(marketplace).toContain("controlled guest-stream function");
+    expect(marketplace).not.toContain('"beat-masters").createSignedUrl');
+    expect(guestStream).toContain('eq("status", "published")');
+    expect(guestStream).toContain("createSignedUrl(path, 120)");
     expect(marketplace).toContain("requestSecureDownload");
   });
 

@@ -19,11 +19,14 @@ describe("BeatBox full-stream and download entitlement boundary", () => {
     expect(creatorHub).not.toContain("preview_url: masterPath, master_url: masterPath");
   });
 
-  it("does not sign a private master as a guest stream", () => {
+  it("keeps browser storage signing away from private masters and routes legacy playback through the reviewed stream endpoint", () => {
     const marketplace = read("client/src/lib/marketplace.ts");
-    expect(marketplace).toContain("beat.is_free || beat.preview_url !== beat.master_url");
+    const guestStream = read("supabase/functions/guest-stream/index.ts");
+    expect(marketplace).toContain("controlled guest-stream function");
     expect(marketplace).toContain('supabase.storage.from("beat-previews")');
     expect(marketplace).not.toContain('"beat-masters").createSignedUrl');
+    expect(guestStream).toContain('eq("status", "published")');
+    expect(guestStream).toContain("createSignedUrl(path, 120)");
   });
 
   it("keeps final downloads behind the verified entitlement function", () => {

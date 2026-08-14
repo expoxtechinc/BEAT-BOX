@@ -145,7 +145,7 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
           <div>
             <p className="eyebrow"><span /> Batch publishing</p>
             <h2>Release up to 20 beats at once</h2>
-            <p>Choose audio files, give every beat its own clear title, and use one shared cover. Every new listing receives a separate full-length guest stream while private masters remain protected.</p>
+            <p>Choose audio files, give every beat its own clear title, and use one shared cover. Each uploaded beat becomes fully playable in the app automatically; no separate preview file is required.</p>
           </div>
           <span className="queue-count">{items.length}/20 selected</span>
         </div>
@@ -164,14 +164,14 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
         </div>
 
         {items.length > 0 && <>
-          <p className="bulk-preview-guidance"><strong>Full guest streaming:</strong> each beat is copied into the separate public stream location. Guests can listen to the full release, while downloads stay behind sign-in and paid-entitlement checks.</p>
+          <p className="bulk-preview-guidance"><strong>Full guest streaming:</strong> each uploaded beat is made fully playable automatically. Guests can listen to the full release, while downloads stay behind sign-in and paid-entitlement checks.</p>
           <div className="bulk-queue" aria-live="polite">
             {items.map((item, index) => (
               <div className={`bulk-queue__item bulk-queue__item--${item.status}`} key={item.id}>
                 <span className="bulk-queue__order">{index + 1}</span>
                 <div className="bulk-queue__content">
                   <input aria-label={`Title for ${item.file.name}`} value={item.title} disabled={busy} maxLength={120} onChange={event => updateItem(item.id, { title: event.target.value })} />
-                  <small className="bulk-preview-ready">This full beat is copied to the separate guest-stream location; its private master is never linked for playback.</small>
+                  <small className="bulk-preview-ready">This uploaded beat will play in full for guests after publishing; no preview file is needed.</small>
                   <small>{formatUploadSize(item.file.size)} · {item.status === "published" ? "Published" : item.status === "failed" ? item.error || "Needs retry" : item.status === "uploading" ? `Uploading ${item.progress}%` : "Ready"}</small>
                   {item.status === "uploading" && <progress max="100" value={item.progress}>{item.progress}%</progress>}
                 </div>
@@ -182,7 +182,7 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
           <div className="upload-progress bulk-upload-progress">
             <div className="upload-progress__label"><span>{busy ? `Batch in progress · ${completedCount} published` : `${completedCount} published · ${queuedCount} ready or retryable`}</span><b>{averageProgress}%</b></div>
             <progress max="100" value={averageProgress}>{averageProgress}%</progress>
-            <small>Do not close this tab while the batch is moving. Each listing uploads a private master plus a separate full guest-stream copy.</small>
+            <small>Do not close this tab while the batch is moving. BeatBox prepares full in-app playback automatically from every uploaded beat.</small>
           </div>
         </>}
 

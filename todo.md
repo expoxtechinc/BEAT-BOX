@@ -621,3 +621,12 @@
 - [x] Preserve sign-in and verified payment/delivery entitlement requirements for all beat download controls and signed master URLs
 - [x] Add regression coverage and responsive validation for guest full streaming, private-master isolation, and protected downloads
 - [x] Synchronize the full-stream release to expoxtechinc/BEAT-BOX and save a checkpoint
+
+## Universal uploaded-audio playback
+
+- [x] Audit all single and bulk upload paths, existing beat media records, public card states, and playback fallbacks for separate-preview assumptions
+- [x] Make every uploaded beat generate or resolve a full stream source automatically without requiring creators to upload a separate preview file
+- [x] Show a visible play control on every beat surface, with an honest processing or unavailable state rather than omitting the control
+- [x] Preserve private masters and protect downloads, licenses, and payment/delivery entitlements while allowing full guest playback from the released stream
+- [x] Add regression coverage and responsive validation for upload-to-playback behavior across single, bulk, catalog, detail, producer, and dashboard surfaces
+- [x] Synchronize the universal uploaded-audio playback release to expoxtechinc/BEAT-BOX and save a checkpoint
