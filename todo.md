@@ -660,4 +660,4 @@
 - [x] Audit and improve canonical metadata, robots directives, structured data, search copy, social-sharing metadata, and the supplied BeatBox social image
 - [x] Strengthen PWA manifest, app icon, offline behavior, and installability metadata required for an Android distribution package
 - [x] Create a concise, truthful Google Play and Uptodown store-listing information pack and publishing checklist
-- [ ] Run build, test, metadata, and live verification; then synchronize the completed release to expoxtechinc/BEAT-BOX
+- [x] Run build, test, metadata, and live verification; then synchronize the completed release to expoxtechinc/BEAT-BOX
