@@ -27,4 +27,14 @@ describe("BeatBox AI security boundary", () => {
     expect(handler).toContain("createExpressMiddleware");
     expect(handler).toContain("createContext");
   });
+
+  it("forwards an active Supabase session and verifies it server-side before protected AI access", () => {
+    const client = read("client/src/main.tsx");
+    const context = read("server/_core/context.ts");
+    expect(client).toContain("supabase.auth.getSession()");
+    expect(client).toContain("`Bearer ${token}`");
+    expect(context).toContain("/auth/v1/user");
+    expect(context).toContain("authenticateSupabaseBearer");
+    expect(context).not.toContain("decodeJwt");
+  });
 });

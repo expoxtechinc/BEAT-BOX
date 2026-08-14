@@ -44,15 +44,18 @@ describe("BeatBox secure download boundary", () => {
     expect(paymentPanel).toMatch(/Mobile Money|Orange Money|WhatsApp/i);
   });
 
-  it("keeps beat upload minimal and protects the single main audio file", async () => {
+  it("keeps a private master separate from the public playback copy", async () => {
     const dashboards = await source("client/src/pages/Dashboards.tsx");
     const marketplace = await source("client/src/lib/marketplace.ts");
 
     expect(dashboards).toContain("const [cover, setCover]");
     expect(dashboards).toContain("const [beatFile, setBeatFile]");
     expect(dashboards).toContain("title");
-    expect(dashboards).not.toContain("previewFile");
-    expect(marketplace).toContain("beat-masters");
+    expect(dashboards).toContain("const [previewFile, setPreviewFile]");
+    expect(dashboards).toContain("Paid beats require a separate short or watermarked preview");
+    expect(dashboards).toContain('upload("beat-masters", beatFile, "beat")');
+    expect(dashboards).toContain('upload("beat-previews", form.is_free ? beatFile : previewFile!, "preview")');
+    expect(marketplace).toContain("beat.is_free || beat.preview_url !== beat.master_url");
     expect(marketplace).toContain("requestSecureDownload");
   });
 

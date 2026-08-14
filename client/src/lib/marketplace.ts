@@ -4,16 +4,22 @@ import { supabase } from "./supabase";
 const externalUrl = (value: string) => /^https?:\/\//i.test(value);
 
 export async function toDisplayBeat(beat: Beat): Promise<Beat> {
+  // A paid master is never an acceptable browser preview. Older listings that
+  // reused the master path intentionally show no audio until the seller adds a
+  // separate preview, rather than exposing a private original through a link.
+  const safePreviewPath = beat.preview_url && (beat.is_free || beat.preview_url !== beat.master_url)
+    ? beat.preview_url
+    : null;
   const [cover, preview] = await Promise.all([
     beat.cover_image_url
       ? externalUrl(beat.cover_image_url)
         ? Promise.resolve({ data: { signedUrl: beat.cover_image_url } })
         : supabase.storage.from("beat-covers").createSignedUrl(beat.cover_image_url, 60 * 60)
       : Promise.resolve({ data: { signedUrl: null } }),
-    beat.preview_url
-      ? externalUrl(beat.preview_url)
-        ? Promise.resolve({ data: { signedUrl: beat.preview_url } })
-        : supabase.storage.from(beat.master_url && beat.master_url === beat.preview_url ? "beat-masters" : "beat-previews").createSignedUrl(beat.preview_url, 60 * 10)
+    safePreviewPath
+      ? externalUrl(safePreviewPath)
+        ? Promise.resolve({ data: { signedUrl: safePreviewPath } })
+        : supabase.storage.from("beat-previews").createSignedUrl(safePreviewPath, 60 * 10)
       : Promise.resolve({ data: { signedUrl: null } }),
   ]);
 

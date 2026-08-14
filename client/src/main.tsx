@@ -5,6 +5,7 @@ import superjson from "superjson";
 import App from "./App";
 import { SupabaseAuthProvider } from "./contexts/SupabaseAuthContext";
 import { trpc } from "./lib/trpc";
+import { supabase } from "./lib/supabase";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,11 @@ const trpcClient = trpc.createClient({
       transformer: superjson,
       url: `${window.location.origin}/api/trpc`,
       fetch: async (url, options) => {
-        const response = await fetch(url, { ...options, credentials: "include" });
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        const headers = new Headers(options?.headers);
+        if (token) headers.set("authorization", `Bearer ${token}`);
+        const response = await fetch(url, { ...options, headers, credentials: "include" });
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("application/json")) return response;
         const responseText = await response.text();

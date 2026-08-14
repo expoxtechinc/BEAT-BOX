@@ -573,6 +573,17 @@
 
 - [x] Correct the standalone health function’s explicit Vercel request/response types so every production build emits the `/api/health` function without TypeScript errors
 
+## Authenticated AI and marketplace entitlement repair
+
+- [x] Diagnose and repair the authenticated AI chat session error `Please login (10001)` without exposing tokens or weakening authentication
+- [x] Verify free beats and eligible free media play and download through the existing protected storage contract
+- [x] Ensure paid beats and paid media remain playable only as previews, with download controls unavailable until seller-confirmed entitlement
+- [x] Improve seller review and WhatsApp-delivery guidance for payment-reference requests without auto-verifying payments or fabricating delivery
+- [x] Let sellers explicitly mark a payment-verified order as delivered only after they send the purchased file through their own WhatsApp conversation
+- [x] Add practical mobile-first marketplace safeguards and clear buyer/seller status communication while preserving the current application structure
+- [x] Test AI authentication contracts, free and paid media entitlements, dashboard media behavior, mobile layout, full regression suite, strict TypeScript, and production build
+- [ ] Synchronize the repaired release to expoxtechinc/BEAT-BOX and save a checkpoint
+
 ## WhatsApp commerce, authentication, and offline-lite continuation
 
 - [x] Inspect the existing Supabase profile, marketplace purchase-request, Google OAuth, AI chat, and PWA contracts before extending them

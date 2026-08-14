@@ -1049,12 +1049,45 @@ var appRouter = router({
 });
 
 // server/_core/context.ts
+var bearerFrom = (request) => {
+  const header = request.headers.authorization;
+  return typeof header === "string" && header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+};
+async function authenticateSupabaseBearer(request) {
+  const token = bearerFrom(request);
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!token || !url || !publishableKey) return null;
+  try {
+    const response = await fetch(`${url.replace(/\/$/, "")}/auth/v1/user`, {
+      headers: { apikey: publishableKey, authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) return null;
+    const account = await response.json();
+    if (!account.id) return null;
+    const now = /* @__PURE__ */ new Date();
+    const name = account.user_metadata?.full_name || account.user_metadata?.name || account.user_metadata?.user_name || account.email || "BeatBox member";
+    return {
+      id: 0,
+      openId: `supabase_${account.id}`.slice(0, 64),
+      name,
+      email: account.email ?? null,
+      loginMethod: "supabase",
+      role: "user",
+      createdAt: now,
+      updatedAt: now,
+      lastSignedIn: now
+    };
+  } catch {
+    return null;
+  }
+}
 async function createContext(opts) {
   let user = null;
   try {
     user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    user = null;
+  } catch {
+    user = await authenticateSupabaseBearer(opts.req);
   }
   return {
     req: opts.req,
