@@ -9,3 +9,7 @@ The live AI route at `https://sastechorg-beatbox.vercel.app/ai` correctly requir
 ## Offline-lite boundary
 
 Offline-lite is browser cache support for previously visited public shell, public pages, and already fetched public media. Authentication, uploads, messages, payments, purchase-reference submissions, AI chat requests, and fresh data require an active internet connection and are intentionally excluded from the service-worker cache strategy.
+
+## WhatsApp commerce release deployment — 2026-08-14
+
+GitHub commit `05c9f5f311e0c8474ee22273d223647a95ce69f7` was deployed to the production `sastechorg-beatbox` Vercel project as deployment `dpl_CqbgQydeKC9UrSug2NM4HzaNwKVf`. Vercel reported the deployment as `READY` with the production alias `https://sastechorg-beatbox.vercel.app`. The deployment uses the repository’s `main` branch and contains the WhatsApp contact setting, truthful payment-reference handoff, and offline-lite update.

@@ -569,6 +569,10 @@
 - [x] Prebundle the shared Express API handler into Vercel’s `/api/index.js` function artifact so Node never resolves extensionless internal server imports at runtime
 - [x] Validate the production `/api/health` response and record Gemini/Supabase service status without exposing secrets
 
+## Follow-up Vercel function type repair
+
+- [x] Correct the standalone health function’s explicit Vercel request/response types so every production build emits the `/api/health` function without TypeScript errors
+
 ## WhatsApp commerce, authentication, and offline-lite continuation
 
 - [x] Inspect the existing Supabase profile, marketplace purchase-request, Google OAuth, AI chat, and PWA contracts before extending them

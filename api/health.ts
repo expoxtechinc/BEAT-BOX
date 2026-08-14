@@ -5,6 +5,11 @@ type ServiceCheck = {
   reachable: boolean | null;
 };
 
+type VercelResponseLike = {
+  setHeader(name: string, value: string): void;
+  status(code: number): { json(payload: unknown): void };
+};
+
 function timeoutSignal(timeoutMs = 6_000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -51,7 +56,7 @@ async function checkSupabase(): Promise<ServiceCheck> {
  * Standalone Vercel diagnostic. It intentionally avoids the Express application
  * so deployment configuration and service reachability can be diagnosed safely.
  */
-export default async function handler(_req: Request, res: Response) {
+export default async function handler(_req: unknown, res: VercelResponseLike) {
   const [gemini, database] = await Promise.all([checkGemini(), checkSupabase()]);
   const ok = gemini.reachable !== false && database.reachable !== false;
   res.setHeader("Cache-Control", "no-store");

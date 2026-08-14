@@ -13,6 +13,8 @@ describe("Vercel health probe contract", () => {
     expect(healthEntrypoint).not.toContain("process.env.VITE_GEMINI_API_KEY");
     expect(healthEntrypoint).toContain("VITE_SUPABASE_PUBLISHABLE_KEY");
     expect(healthEntrypoint).toContain("Cache-Control");
+    expect(healthEntrypoint).toContain("type VercelResponseLike");
+    expect(healthEntrypoint).toContain("res: VercelResponseLike");
   });
 
   it("isolates health from the full application while prebundling non-health server modules", () => {
