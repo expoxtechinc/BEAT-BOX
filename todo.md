@@ -661,3 +661,10 @@
 - [x] Strengthen PWA manifest, app icon, offline behavior, and installability metadata required for an Android distribution package
 - [x] Create a concise, truthful Google Play and Uptodown store-listing information pack and publishing checklist
 - [x] Run build, test, metadata, and live verification; then synchronize the completed release to expoxtechinc/BEAT-BOX
+
+## PWA installation and store-feedback experience
+
+- [x] Add a prominent, accessible homepage install banner that uses the browser PWA installation event when available and provides platform-specific guidance otherwise
+- [x] Add a respectful in-app rating prompt that asks for genuine feedback, remembers dismissals, and does not claim or solicit a particular rating
+- [x] Keep the Play Store action disabled until an owner-provided public listing URL is configured; cover all resulting states with regression tests
+- [x] Validate the responsive experience, build, tests, and repository synchronization for the install-and-rating release
