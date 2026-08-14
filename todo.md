@@ -676,3 +676,11 @@
 - [x] Generate the Android project with required network permissions and BeatBox-aligned application icon and splash assets without including any secrets
 - [x] Add GitHub Actions CI to build the web app, synchronize Capacitor, produce a debug APK and unsigned release AAB, and upload both as workflow artifacts
 - [x] Run existing tests, TypeScript check, web build, Capacitor synchronization, and Android debug build; then commit and push the verified project to `main`
+
+## Scalable beat-catalog discovery
+
+- [x] Audit the public and authenticated beat-list queries, sorting, result caps, cache behavior, and client rendering to identify why older beats are no longer reachable after roughly sixty uploads
+- [x] Replace fixed or unstable catalog limits with deterministic cursor-based pagination that supports large catalogs while retaining clear newest-first discovery and access to older releases
+- [x] Add mobile-friendly progressive loading controls, loaded-result state, and resilient empty/loading/error states without changing BeatBox’s existing visual structure
+- [x] Add regression tests covering catalog traversal beyond sixty beats, duplicate timestamp ordering, and safe bounded query limits
+- [x] Validate the repaired catalog locally and in production, then synchronize the verified fix to expoxtechinc/BEAT-BOX `main`

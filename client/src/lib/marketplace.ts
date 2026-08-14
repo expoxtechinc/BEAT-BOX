@@ -2,6 +2,34 @@ import type { Beat, BeatLicense, Category } from "./models";
 import { supabase } from "./supabase";
 
 const externalUrl = (value: string) => /^https?:\/\//i.test(value);
+const DEFAULT_CATALOG_PAGE_SIZE = 24;
+const MAX_CATALOG_PAGE_SIZE = 60;
+
+export type BeatCatalogFilters = {
+  search?: string;
+  genre?: string;
+  mood?: string;
+  minBpm?: number;
+  maxBpm?: number;
+};
+
+export type BeatCatalogCursor = { createdAt: string; id: string };
+
+export type PublishedBeatsPage = {
+  beats: Beat[];
+  nextCursor: BeatCatalogCursor | null;
+  hasMore: boolean;
+};
+
+export function normalizeCatalogPageSize(value?: number) {
+  return Math.min(Math.max(Math.floor(value ?? DEFAULT_CATALOG_PAGE_SIZE), 1), MAX_CATALOG_PAGE_SIZE);
+}
+
+export function createOlderBeatCursorFilter(cursor: BeatCatalogCursor) {
+  const createdAt = cursor.createdAt.replace(/[^0-9T:.+\-Z]/g, "");
+  const id = cursor.id.replace(/[^a-zA-Z0-9\-]/g, "");
+  return `created_at.lt.${createdAt},and(created_at.eq.${createdAt},id.lt.${id})`;
+}
 
 export async function toDisplayBeat(beat: Beat): Promise<Beat> {
   // Dedicated stream copies load immediately. A missing or legacy matching path
@@ -29,19 +57,20 @@ export async function toDisplayBeat(beat: Beat): Promise<Beat> {
   };
 }
 
-export async function loadPublishedBeats(filters?: {
-  search?: string;
-  genre?: string;
-  mood?: string;
-  minBpm?: number;
-  maxBpm?: number;
-}) {
+export async function loadPublishedBeatPage(options?: {
+  filters?: BeatCatalogFilters;
+  cursor?: BeatCatalogCursor | null;
+  pageSize?: number;
+}): Promise<PublishedBeatsPage> {
+  const filters = options?.filters;
+  const pageSize = normalizeCatalogPageSize(options?.pageSize);
   let query = supabase
     .from("beats")
     .select("*")
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    .limit(60);
+    .order("id", { ascending: false })
+    .limit(pageSize + 1);
 
   if (filters?.genre && filters.genre !== "all") query = query.eq("genre", filters.genre);
   if (filters?.mood && filters.mood !== "all") query = query.eq("mood", filters.mood);
@@ -51,10 +80,25 @@ export async function loadPublishedBeats(filters?: {
   }
   if (filters?.minBpm) query = query.gte("bpm", filters.minBpm);
   if (filters?.maxBpm) query = query.lte("bpm", filters.maxBpm);
+  if (options?.cursor) query = query.or(createOlderBeatCursorFilter(options.cursor));
 
   const { data, error } = await query;
   if (error) throw error;
-  return Promise.all(((data ?? []) as Beat[]).map(toDisplayBeat));
+  const rows = (data ?? []) as Beat[];
+  const hasMore = rows.length > pageSize;
+  const pageRows = hasMore ? rows.slice(0, pageSize) : rows;
+  const lastBeat = pageRows.at(-1);
+  return {
+    beats: await Promise.all(pageRows.map(toDisplayBeat)),
+    nextCursor: hasMore && lastBeat?.created_at ? { createdAt: lastBeat.created_at, id: lastBeat.id } : null,
+    hasMore,
+  };
+}
+
+// Kept for compact featured surfaces. Catalog pages use loadPublishedBeatPage.
+export async function loadPublishedBeats(filters?: BeatCatalogFilters) {
+  const result = await loadPublishedBeatPage({ filters, pageSize: MAX_CATALOG_PAGE_SIZE });
+  return result.beats;
 }
 
 export async function loadBeatBySlug(slug: string) {
