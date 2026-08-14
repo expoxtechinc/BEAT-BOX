@@ -684,3 +684,12 @@
 - [x] Add mobile-friendly progressive loading controls, loaded-result state, and resilient empty/loading/error states without changing BeatBox’s existing visual structure
 - [x] Add regression tests covering catalog traversal beyond sixty beats, duplicate timestamp ordering, and safe bounded query limits
 - [x] Validate the repaired catalog locally and in production, then synchronize the verified fix to expoxtechinc/BEAT-BOX `main`
+
+## BeatBox flagship promotional film
+
+- [x] Define the approved 75-second campaign narrative, truthful claims, dark-and-gold visual direction, male English voiceover, and primary call to action
+- [x] Write the timed clip plan, narration, transition descriptions, and original Afrobeat-electronic music blueprint
+- [x] Generate consistent visual reference assets before video generation
+- [x] Generate, assemble, and validate a high-quality 75-second vertical BeatBox advertisement with captions, voiceover, and original music
+- [x] Deliver the downloadable master with practical guidance for 30-second, 15-second, and landscape campaign adaptations
+- [x] Assemble the confirmed quota-safe motion-graphic master from authentic BeatBox captures, original audio, visual references, and dark-and-gold editorial motion design
