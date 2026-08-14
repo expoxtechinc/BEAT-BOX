@@ -582,5 +582,6 @@
 - [x] Show safe seller contact and purchase instructions on eligible public sale listings while preserving private contact fields and paid-master protections
 - [x] Improve offline-lite behavior using cached public shell/content and clear online-required states for uploads, authentication, payments, messages, and fresh data
 - [x] Verify Google OAuth initiation, AI provider readiness and authentication guard, privacy boundaries, purchase-reference persistence contracts, offline-lite cache boundaries, mobile layout, tests, and production build
+- [x] Verify the publicly accessible current Vercel deployment alias and credential-safe Gemini/Supabase health response after disabling project-level Vercel Authentication
 - [ ] Perform one user-controlled, authenticated production AI chat completion after signing in; no account or AI response will be fabricated for this check
 - [ ] Synchronize the completed enhancement to expoxtechinc/BEAT-BOX and save a checkpoint

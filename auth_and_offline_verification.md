@@ -13,3 +13,7 @@ Offline-lite is browser cache support for previously visited public shell, publi
 ## WhatsApp commerce release deployment — 2026-08-14
 
 GitHub commit `05c9f5f311e0c8474ee22273d223647a95ce69f7` was deployed to the production `sastechorg-beatbox` Vercel project as deployment `dpl_CqbgQydeKC9UrSug2NM4HzaNwKVf`. Vercel reported the deployment as `READY` with the production alias `https://sastechorg-beatbox.vercel.app`. The deployment uses the repository’s `main` branch and contains the WhatsApp contact setting, truthful payment-reference handoff, and offline-lite update.
+
+## Current public production alias — 2026-08-14
+
+The legacy `https://sastechorg-beatbox.vercel.app` hostname is serving an older BeatBox SPA deployment and therefore must not be used as the validation target for the current GitHub project. The current linked Vercel project is publicly available at `https://sastechorg-beatbox-expoxtechincs-projects.vercel.app` after Vercel Authentication was disabled for this intended public marketplace. Its `/api/health` route returned `200` with Gemini and Supabase both configured and reachable. The only outstanding check is a real, user-controlled signed-in AI chat completion; this cannot be responsibly fabricated without a user session.
