@@ -1,8 +1,23 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { recordEngagement } from "@/lib/engagement";
 import { useEffect, useRef, useState } from "react";
+import "./AudioPreview.css";
 
-export function AudioPreview({ src, title, compact = false, engagementSubjectId }: { src?: string | null; title: string; compact?: boolean; engagementSubjectId?: string }) {
+type AudioPreviewProps = {
+  src?: string | null;
+  title: string;
+  compact?: boolean;
+  engagementSubjectId?: string;
+  publicPreview?: boolean;
+};
+
+export function AudioPreview({
+  src,
+  title,
+  compact = false,
+  engagementSubjectId,
+  publicPreview = true,
+}: AudioPreviewProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playTracked = useRef(false);
   const [playing, setPlaying] = useState(false);
@@ -29,13 +44,21 @@ export function AudioPreview({ src, title, compact = false, engagementSubjectId 
     }
   };
 
+  const actionLabel = `${playing ? "Pause" : "Play preview"} for ${title}`;
+
   return (
-    <div className={`audio-preview ${compact ? "audio-preview--compact" : ""}`}>
+    <div className={`audio-preview ${compact ? "audio-preview--compact" : ""}`} data-preview-access={publicPreview ? "guest" : "account"}>
       <audio
         ref={audioRef}
         src={src}
         preload="metadata"
-        onPlay={() => { setPlaying(true); if (engagementSubjectId && !playTracked.current) { playTracked.current = true; void recordEngagement("beat", engagementSubjectId, "play").catch(() => undefined); } }}
+        onPlay={() => {
+          setPlaying(true);
+          if (engagementSubjectId && !playTracked.current) {
+            playTracked.current = true;
+            void recordEngagement("beat", engagementSubjectId, "play").catch(() => undefined);
+          }
+        }}
         onPause={() => setPlaying(false)}
         onEnded={() => {
           setPlaying(false);
@@ -43,14 +66,15 @@ export function AudioPreview({ src, title, compact = false, engagementSubjectId 
         }}
         onTimeUpdate={event => setProgress((event.currentTarget.currentTime / event.currentTarget.duration || 0) * 100)}
       />
-      <button type="button" className="audio-preview__play" onClick={() => void toggle()} aria-label={`${playing ? "Pause" : "Play"} ${title}`}>
-        {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+      <button type="button" className="audio-preview__play" onClick={() => void toggle()} aria-label={actionLabel} title={actionLabel}>
+        {playing ? <Pause size={16} fill="currentColor" aria-hidden="true" /> : <Play size={16} fill="currentColor" aria-hidden="true" />}
+        <span className="audio-preview__play-label">{playing ? "Pause" : "Play"}</span>
       </button>
       <div className="audio-preview__track-wrap">
         <div className="audio-preview__track" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
-        {!compact && <span className="audio-preview__caption">Watermarked preview</span>}
+        {!compact && <span className={`audio-preview__caption ${publicPreview ? "audio-preview__caption--public" : ""}`}>{publicPreview ? "Public preview · No sign-in needed to listen" : "Watermarked preview"}</span>}
       </div>
-      <button type="button" className="audio-preview__mute" onClick={() => setVolume(value => (value > 0 ? 0 : 0.8))} aria-label="Toggle volume">
+      <button type="button" className="audio-preview__mute" onClick={() => setVolume(value => (value > 0 ? 0 : 0.8))} aria-label="Toggle preview volume">
         {volume > 0 ? <Volume2 size={15} /> : <VolumeX size={15} />}
       </button>
       {!compact && <input className="audio-preview__volume" aria-label="Preview volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={event => setVolume(Number(event.target.value))} />}

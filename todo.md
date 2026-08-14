@@ -596,3 +596,11 @@
 - [x] Verify the publicly accessible current Vercel deployment alias and credential-safe Gemini/Supabase health response after disabling project-level Vercel Authentication
 - [ ] Perform one user-controlled, authenticated production AI chat completion after signing in; no account or AI response will be fabricated for this check
 - [x] Synchronize the completed enhancement to expoxtechinc/BEAT-BOX and save a checkpoint
+
+## Public beat play controls and guest previews
+
+- [x] Audit all public beat cards, detail views, and preview sources to identify any listings without a visible accessible play control
+- [x] Add a consistent play icon and guest-accessible preview interaction to every public beat surface without exposing private paid masters
+- [x] Preserve sign-in requirements for downloads, favorites, payment requests, publishing, and other account-controlled actions with clear guidance for guests
+- [x] Add regression tests and responsive validation for guest preview playback, paid-preview separation, and protected actions
+- [x] Synchronize the guest preview update to expoxtechinc/BEAT-BOX and save a checkpoint
