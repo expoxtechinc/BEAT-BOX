@@ -18,4 +18,4 @@ Disallow: /ai
 Disallow: /api/
 Disallow: /storage/
 
-Sitemap: https://beat-box-org.vercel.app/sitemap.xml
+Sitemap: https://sastechorg-beatbox.vercel.app/sitemap.xml

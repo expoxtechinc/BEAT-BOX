@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://beat-box-org.vercel.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/explore</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/catalog</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/community</loc><changefreq>hourly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/producers</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/help</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/terms</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://beat-box-org.vercel.app/privacy</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/explore</loc><lastmod>2026-08-14</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/catalog</loc><lastmod>2026-08-14</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/community</loc><lastmod>2026-08-14</lastmod><changefreq>hourly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/producers</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/help</loc><lastmod>2026-08-14</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/contact</loc><lastmod>2026-08-14</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/terms</loc><lastmod>2026-08-14</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://sastechorg-beatbox.vercel.app/privacy</loc><lastmod>2026-08-14</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
 </urlset>

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
-const SITE_URL = "https://beat-box-org.vercel.app";
+const SITE_URL = "https://sastechorg-beatbox.vercel.app";
 const DEFAULT_IMAGE =
-  "https://cdn.phototourl.com/free/2026-08-11-b48b27bd-a5a9-4363-9b97-eacdce958524.png";
+  "https://sastechorg-beatbox.vercel.app/manus-storage/beatbox-social-and-store-artwork_7f0b0a2a.png";
 
 export type PageMetaOptions = {
   canonicalPath?: string;
@@ -60,6 +60,8 @@ export function usePageMeta(
     upsertMeta('meta[property="og:description"]', { property: "og:description", content: description });
     upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonicalUrl });
     upsertMeta('meta[property="og:type"]', { property: "og:type", content: options.type ?? "website" });
+    upsertMeta('meta[property="og:site_name"]', { property: "og:site_name", content: "BeatBox" });
+    upsertMeta('meta[property="og:locale"]', { property: "og:locale", content: "en_LR" });
     upsertMeta('meta[property="og:image"]', { property: "og:image", content: image });
     upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
     upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: `${title} | BeatBox` });

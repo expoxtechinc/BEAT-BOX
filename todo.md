@@ -653,3 +653,11 @@
 - [x] Verify the production database and storage are clean while user accounts, authentication, branding, and application configuration remain intact
 - [x] Verify the clean public experience and use the upload-to-playback regression suite to confirm the first future uploaded beat will be playback-ready without adding test content to production
 - [x] Synchronize the reset verification record to expoxtechinc/BEAT-BOX and save a checkpoint
+
+## Google discoverability and app-store readiness
+
+- [x] Add the supplied Google Search Console verification file at the public site root and document the verification URL
+- [x] Audit and improve canonical metadata, robots directives, structured data, search copy, social-sharing metadata, and the supplied BeatBox social image
+- [x] Strengthen PWA manifest, app icon, offline behavior, and installability metadata required for an Android distribution package
+- [x] Create a concise, truthful Google Play and Uptodown store-listing information pack and publishing checklist
+- [ ] Run build, test, metadata, and live verification; then synchronize the completed release to expoxtechinc/BEAT-BOX
