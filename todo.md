@@ -630,3 +630,4 @@
 - [x] Preserve private masters and protect downloads, licenses, and payment/delivery entitlements while allowing full guest playback from the released stream
 - [x] Add regression coverage and responsive validation for upload-to-playback behavior across single, bulk, catalog, detail, producer, and dashboard surfaces
 - [x] Synchronize the universal uploaded-audio playback release to expoxtechinc/BEAT-BOX and save a checkpoint
+- [x] Align landing-page listening and upload language with full guest streaming rather than separate previews
