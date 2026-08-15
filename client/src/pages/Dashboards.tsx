@@ -88,7 +88,7 @@ function UploadBeat({ onDone }: { onDone: () => void }) {
       const price = form.is_free ? 0 : Number(form.price);
       const { data, error } = await supabase.from("beats").insert({
         seller_id: user.id, title: form.title.trim(), slug, price,
-        is_free: form.is_free, producer: profile?.display_name || "BeatBox producer", cover_image_url: coverPath,
+        is_free: form.is_free, access_mode: form.is_free ? "free_download" : "paid_download", download_enabled: true, producer: profile?.display_name || "BeatBox producer", cover_image_url: coverPath,
         preview_url: previewPath, master_url: mainBeatPath, status: "published", published_at: new Date().toISOString(),
       }).select("id").single();
       if (error) throw error;

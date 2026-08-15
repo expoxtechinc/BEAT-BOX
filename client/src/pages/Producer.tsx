@@ -4,7 +4,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { loadPublishedBeats } from "@/lib/marketplace";
 import type { Beat } from "@/lib/models";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle2, ExternalLink, Heart, Instagram, MapPin, MessageCircle, Music2, UserCheck, UserMinus, UserPlus, UserRound, UserX, Youtube } from "lucide-react";
+import { CheckCircle2, ExternalLink, Heart, Image as ImageIcon, Instagram, MapPin, MessageCircle, Music2, PlayCircle, UserCheck, UserMinus, UserPlus, UserRound, UserX, Youtube } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 
@@ -14,6 +14,7 @@ type ProducerInfo = {
   username: string | null;
   bio: string | null;
   avatar_url: string | null;
+  cover_url: string | null;
   country: string | null;
   producer_name: string | null;
   whatsapp: string | null;
@@ -26,6 +27,7 @@ type ProducerInfo = {
 type FriendState = "none" | "outgoing" | "incoming" | "friends";
 
 type FriendRequest = { requester_id: string; addressee_id: string; status: "pending" | "accepted" };
+type ProfilePost = { id: string; body: string | null; media_path: string | null; media_type: "image" | "video" | "audio" | null; created_at: string };
 
 function safeExternalUrl(value: string | null | undefined) {
   try {
@@ -82,7 +84,8 @@ export default function Producer() {
   const [following, setFollowing] = useState(false);
   const [friendState, setFriendState] = useState<FriendState>("none");
   const [relationshipBusy, setRelationshipBusy] = useState(false);
-  const [tab, setTab] = useState<"content" | "about">("content");
+  const [tab, setTab] = useState<"all" | "photos" | "reels" | "about">("all");
+  const [posts, setPosts] = useState<ProfilePost[]>([]);
   usePageMeta(producer?.producer_name || producer?.display_name || "Producer", producer?.bio || "Browse beats from a BeatBox producer.");
 
   useEffect(() => {
@@ -90,9 +93,11 @@ export default function Producer() {
     void Promise.all([
       supabase.rpc("get_public_sellers", { p_seller_id: params.id }).maybeSingle(),
       loadPublishedBeats(),
-    ]).then(([profile, data]) => {
+      supabase.from("social_posts").select("id,body,media_path,media_type,created_at").eq("author_id", params.id).eq("status", "published").eq("audience", "public").order("created_at", { ascending: false }).limit(36),
+    ]).then(([profile, data, postResult]) => {
       setProducer((profile.data as ProducerInfo | null) ?? null);
       setBeats(data.filter(beat => beat.seller_id === params.id));
+      setPosts((postResult.data || []) as ProfilePost[]);
     });
   }, [params?.id]);
 
@@ -158,11 +163,12 @@ export default function Producer() {
     { url: whatsappUrl(producer.whatsapp), label: "WhatsApp chat", icon: <MessageCircle size={15} /> },
   ].filter((social): social is typeof social & { url: string } => social.url !== null);
   const name = producer.producer_name || producer.display_name || "BeatBox producer";
+  const visiblePosts = tab === "photos" ? posts.filter(post => post.media_type === "image") : tab === "reels" ? posts.filter(post => post.media_type === "video") : posts;
 
   return (
     <section className="producer-profile">
       <div className="container">
-        <div className="producer-profile__cover" aria-hidden="true"><span>{name.slice(0, 1).toUpperCase()}</span></div>
+        <div className="producer-profile__cover" aria-hidden="true" style={producer.cover_url ? { backgroundImage: `url(${producer.cover_url})` } : undefined}><span>{name.slice(0, 1).toUpperCase()}</span></div>
         <div className="producer-profile__hero">
           <div className="producer-profile__avatar">{producer.avatar_url ? <img src={producer.avatar_url} alt={`${name} profile`} /> : <UserRound />}</div>
           <div>
@@ -185,8 +191,8 @@ export default function Producer() {
             )}
           </div>
         </div>
-        <nav className="profile-tabs" aria-label="Producer profile sections"><button className={tab === "content" ? "is-active" : ""} onClick={() => setTab("content")}>Published content</button><button className={tab === "about" ? "is-active" : ""} onClick={() => setTab("about")}>About & links</button></nav>
-        {tab === "about" ? <div className="producer-profile__about"><p className="eyebrow"><span /> About this creator</p><h2>{producer.bio ? "Creator note" : "A new BeatBox voice"}</h2><p>{producer.bio || "This producer is building a public catalog on BeatBox."}</p><p><MapPin size={15} /> {producer.country || "Liberia"}</p>{socials.length > 0 && <div className="producer-profile__socials">{socials.map(social => <a href={social.url} target="_blank" rel="noreferrer" key={social.label}>{social.icon}{social.label}</a>)}</div>}</div> : <><div className="section-heading"><div><p className="eyebrow"><span /> Catalog</p><h2>Available beats</h2></div><span>{beats.length} published</span></div>{beats.length ? <div className="beat-grid">{beats.map(beat => <BeatCard key={beat.id} beat={beat} />)}</div> : <div className="empty-featured empty-featured--light"><Music2 size={32} /><h2>No public beats yet.</h2></div>}</>}
+        <nav className="profile-tabs" aria-label="Producer profile sections"><button className={tab === "all" ? "is-active" : ""} onClick={() => setTab("all")}>All</button><button className={tab === "photos" ? "is-active" : ""} onClick={() => setTab("photos")}><ImageIcon size={14} /> Photos</button><button className={tab === "reels" ? "is-active" : ""} onClick={() => setTab("reels")}><PlayCircle size={14} /> Reels</button><button className={tab === "about" ? "is-active" : ""} onClick={() => setTab("about")}>About</button></nav>
+        {tab === "about" ? <div className="producer-profile__about"><p className="eyebrow"><span /> About this creator</p><h2>{producer.bio ? "Creator note" : "A new BeatBox voice"}</h2><p>{producer.bio || "This producer is building a public catalog on BeatBox."}</p><p><MapPin size={15} /> {producer.country || "Liberia"}</p>{socials.length > 0 && <div className="producer-profile__socials">{socials.map(social => <a href={social.url} target="_blank" rel="noreferrer" key={social.label}>{social.icon}{social.label}</a>)}</div>}</div> : <>{tab === "all" && <><div className="section-heading"><div><p className="eyebrow"><span /> Catalog</p><h2>Available beats</h2></div><span>{beats.length} published</span></div>{beats.length ? <div className="beat-grid">{beats.map(beat => <BeatCard key={beat.id} beat={beat} />)}</div> : <div className="empty-featured empty-featured--light"><Music2 size={32} /><h2>No public beats yet.</h2></div>}</>}{(tab === "all" || tab === "photos" || tab === "reels") && <div className="profile-post-section"><div className="section-heading"><div><p className="eyebrow"><span /> Community posts</p><h2>{tab === "photos" ? "Public photos" : tab === "reels" ? "Public reels" : "Public posts"}</h2></div><span>{visiblePosts.length} visible</span></div>{visiblePosts.length ? <div className="profile-post-grid">{visiblePosts.map(post => { const mediaUrl = post.media_path ? supabase.storage.from("social-media").getPublicUrl(post.media_path).data.publicUrl : null; return <article className="profile-post-card" key={post.id}>{mediaUrl && post.media_type === "image" && <img src={mediaUrl} alt="Public community post" loading="lazy" />}{mediaUrl && post.media_type === "video" && <video src={mediaUrl} controls preload="metadata" />}{post.body && <p>{post.body}</p>}<small>{new Date(post.created_at).toLocaleDateString()}</small></article>; })}</div> : <div className="empty-featured empty-featured--light"><ImageIcon size={30} /><h2>No public {tab === "photos" ? "photos" : tab === "reels" ? "reels" : "posts"} yet.</h2><p>Only posts published publicly by this creator appear here.</p></div>}</div>}</>}
       </div>
     </section>
   );

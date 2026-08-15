@@ -693,3 +693,12 @@
 - [x] Generate, assemble, and validate a high-quality 75-second vertical BeatBox advertisement with captions, voiceover, and original music
 - [x] Deliver the downloadable master with practical guidance for 30-second, 15-second, and landscape campaign adaptations
 - [x] Assemble the confirmed quota-safe motion-graphic master from authentic BeatBox captures, original audio, visual references, and dark-and-gold editorial motion design
+
+## Secure downloads, profiles, and community publishing
+
+- [x] Diagnose the production `secure-download` Edge Function non-2xx response and repair the free-beat signed-download path without weakening entitlement checks for paid beats
+- [x] Extend account profiles with an editable cover image and complete public account information while retaining the existing avatar, biography, creator, privacy, and WhatsApp settings
+- [x] Add authenticated text-and-photo community posts with a mobile-first creator, ownership controls, and profile tabs for posts, photos, and reels
+- [x] Add truthful profile support details and direct call, WhatsApp, and email actions for BeatBox support at +231 889 792 996 and beatbox.contact@gmail.com
+- [x] Add native-feeling pull-to-refresh behavior to primary mobile discovery, community, profile, and account data views
+- [ ] Add regression coverage, apply necessary production migrations and function deployment, validate mobile/desktop views, and synchronize the verified release to `expoxtechinc/BEAT-BOX` `main`

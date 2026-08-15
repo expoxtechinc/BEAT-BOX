@@ -119,7 +119,7 @@ function BulkBeatUpload({ creatorId, creatorName }: { creatorId: string; creator
           const previewPath = `${creatorId}/${crypto.randomUUID()}-${item.file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
           await uploadResumable({ bucket: "beat-previews", objectPath: previewPath, file: item.file, onProgress: progress => { updateItem(item.id, { progress: 80 + Math.round(progress * 0.2) }); setMessage(`Uploading full guest stream for ${item.title}: ${progress}%. Guests can listen without signing in once it is published.`); } });
           const amount = isFree ? 0 : Number(price) || 0;
-          const { data: beat, error: beatError } = await supabase.from("beats").insert({ seller_id: creatorId, title: item.title.trim(), slug: slugify(item.title), price: amount, is_free: isFree, producer: creatorName, genre: genre.trim() || null, cover_image_url: coverPath, preview_url: previewPath, master_url: masterPath, status: "published", published_at: new Date().toISOString() }).select("id").single();
+          const { data: beat, error: beatError } = await supabase.from("beats").insert({ seller_id: creatorId, title: item.title.trim(), slug: slugify(item.title), price: amount, is_free: isFree, access_mode: isFree ? "free_download" : "paid_download", download_enabled: true, producer: creatorName, genre: genre.trim() || null, cover_image_url: coverPath, preview_url: previewPath, master_url: masterPath, status: "published", published_at: new Date().toISOString() }).select("id").single();
           if (beatError) throw beatError;
           if (beat) await supabase.from("beat_licenses").insert([
             { beat_id: beat.id, license_code: "basic", name: "Basic", price: amount, terms: "Non-exclusive use under the producer’s displayed terms." },

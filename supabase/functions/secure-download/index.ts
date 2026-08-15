@@ -27,7 +27,9 @@ Deno.serve(async (request) => {
   } else {
     const { data, error } = await admin.from("beats").select("id,title,is_free,master_url,access_mode,content_type,currency,download_enabled").eq("id", payload.beat_id).eq("status", "published").maybeSingle();
     if (error || !data?.master_url || /^https?:\/\//i.test(data.master_url) || data.download_enabled === false) return json({ error: "This beat is not available for secure delivery" }, 404);
-    asset = { id: data.id, title: data.title, original_path: data.master_url, access_mode: data.access_mode || (data.is_free ? "free_download" : "paid_download"), content_type: data.content_type || "audio", currency: data.currency || "USD", is_content: false, beat_id: data.id, order_id: null };
+    // `is_free` is the listing's authoritative commercial policy. Favor it over
+    // legacy access-mode rows that were accidentally stored as paid downloads.
+    asset = { id: data.id, title: data.title, original_path: data.master_url, access_mode: data.is_free ? "free_download" : (data.access_mode || "paid_download"), content_type: data.content_type || "audio", currency: data.currency || "USD", is_content: false, beat_id: data.id, order_id: null };
   }
   if (payload.preview) {
     if (!asset.is_content || !asset.preview_path) return json({ error: "A preview is not available for this item" }, 404);

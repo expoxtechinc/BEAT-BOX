@@ -22,7 +22,8 @@ describe("full guest streaming controls", () => {
     const marketplace = read("client/src/lib/marketplace.ts");
     const secureDownload = read("supabase/functions/secure-download/index.ts");
 
-    expect(marketplace).toContain('supabase.functions.invoke("secure-download"');
+    expect(marketplace).toContain("functions/v1/secure-download");
+    expect(marketplace).toContain("Authorization: `Bearer ${sessionData.session.access_token}`");
     expect(secureDownload).toContain('in("status", ["payment_verified", "delivered"])');
     expect(secureDownload).toContain('const bucket = asset.is_content ? "content-masters" : "beat-masters"');
   });

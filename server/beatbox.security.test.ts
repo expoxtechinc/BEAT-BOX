@@ -29,7 +29,8 @@ describe("BeatBox secure download boundary", () => {
     const client = await source("client/src/lib/marketplace.ts");
     const edge = await source("supabase/functions/secure-download/index.ts");
 
-    expect(client).toContain('supabase.functions.invoke("secure-download"');
+    expect(client).toContain("functions/v1/secure-download");
+    expect(client).toContain("Authorization: `Bearer ${sessionData.session.access_token}`");
     expect(client).not.toContain('from("beat-masters").createSignedUrl');
     expect(edge).toContain('const token = bearer.startsWith("Bearer ")');
     expect(edge).toContain('admin.auth.getUser(token)');

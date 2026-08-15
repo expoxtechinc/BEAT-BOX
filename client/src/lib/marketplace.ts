@@ -1,5 +1,5 @@
 import type { Beat, BeatLicense, Category } from "./models";
-import { supabase } from "./supabase";
+import { supabase, supabaseUrl } from "@/lib/supabase";
 
 const externalUrl = (value: string) => /^https?:\/\//i.test(value);
 const DEFAULT_CATALOG_PAGE_SIZE = 24;
@@ -125,9 +125,25 @@ export async function loadLicenses(beatId: string) {
 }
 
 export async function requestSecureDownload(beatId: string) {
-  const { data, error } = await supabase.functions.invoke("secure-download", { body: { beat_id: beatId } });
-  if (error) throw error;
-  return data as { url: string; expires_in: number };
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData.session?.access_token) {
+    throw new Error("Sign in to request a secure download.");
+  }
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/secure-download`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${sessionData.session.access_token}`,
+      "Content-Type": "application/json",
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+    },
+    body: JSON.stringify({ beat_id: beatId }),
+  });
+  const payload = await response.json().catch(() => null) as { error?: string; url?: string; expires_in?: number } | null;
+  if (!response.ok || !payload?.url) {
+    throw new Error(payload?.error || "The secure download service could not complete this request. Please retry shortly.");
+  }
+  return { url: payload.url, expires_in: payload.expires_in || 300 };
 }
 
 export const money = (amount: number | null | undefined) =>
