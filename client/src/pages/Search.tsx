@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Hash, Loader2, Search as SearchIcon, UserRound } from "lucide-react";
+import { Disc3, Hash, Loader2, Radio, Search as SearchIcon, UserRound, UsersRound } from "lucide-react";
 import { Link } from "wouter";
 import { supabase } from "@/lib/supabase";
 
 type Result = { id: string; title: string; kind: string; href: string; description?: string | null };
+
+const discoveryLinks = [
+  { href: "/catalog", label: "Browse all beats", description: "Explore published music from BeatBox creators.", icon: Disc3 },
+  { href: "/charts", label: "See the charts", description: "Ranked from real BeatBox listener activity.", icon: Radio },
+  { href: "/producers", label: "Meet creators", description: "Find public producer and artist profiles.", icon: UsersRound },
+];
 
 export default function Search() {
   const [query, setQuery] = useState("");
@@ -36,5 +42,7 @@ export default function Search() {
     }, 220);
     return () => window.clearTimeout(timer);
   }, [query]);
-  return <section className="explore-page"><div className="container"><div className="page-intro"><p className="eyebrow"><span /> BeatBox discovery</p><h1>Search the whole platform.</h1><p>Find creators, beats, music, videos, reels, products, apps, movies, posts, and hashtags from one public search.</p></div><div className="search-field" role="search"><SearchIcon size={17} /><input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder="Search creators, beats, posts, hashtags…" aria-label="Search BeatBox" /></div>{loading && <div className="status-page"><Loader2 className="spin" /><p>Searching BeatBox…</p></div>}{error && <p className="form-error" role="alert">{error}</p>}{!loading && !error && query.trim().length >= 2 && <div className="search-results" aria-live="polite">{results.length ? results.map(result => <Link className="search-result-card" key={`${result.kind}-${result.id}`} href={result.href}>{result.kind === "creator" ? <UserRound size={18} /> : result.kind === "hashtag" ? <Hash size={18} /> : <SearchIcon size={18} />}<span><small>{result.kind}</small><b>{result.title}</b>{result.description && <em>{result.description}</em>}</span></Link>) : <div className="empty-featured empty-featured--light"><SearchIcon size={30} /><h2>No public matches yet.</h2><p>Try a creator name, beat title, product, post, or hashtag.</p></div>}</div>}</div></section>;
+  const showDiscovery = !loading && !error && query.trim().length < 2;
+
+  return <section className="explore-page music-search-page"><div className="container"><div className="page-intro"><p className="eyebrow"><span /> BeatBox discovery</p><h1>Search the whole platform.</h1><p>Find creators, beats, music, videos, reels, products, posts, and hashtags from one public search.</p></div><div className="music-search-card"><div className="search-field" role="search"><SearchIcon size={20} /><input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder="Artists, beats, posts, and hashtags…" aria-label="Search BeatBox" /></div><p>Search results show only public, published content.</p></div>{showDiscovery && <section className="search-discovery" aria-labelledby="search-discovery-heading"><div className="section-heading"><div><p className="eyebrow"><span /> Start exploring</p><h2 id="search-discovery-heading">Pick up where the music takes you.</h2></div></div><div className="search-discovery-grid">{discoveryLinks.map(({ href, label, description, icon: Icon }) => <Link className="search-discovery-card" href={href} key={href}><Icon size={20} aria-hidden="true" /><span><b>{label}</b><small>{description}</small></span><span aria-hidden="true">↗</span></Link>)}</div></section>}{loading && <div className="status-page"><Loader2 className="spin" /><p>Searching BeatBox…</p></div>}{error && <p className="form-error" role="alert">{error}</p>}{!loading && !error && query.trim().length >= 2 && <div className="search-results" aria-live="polite">{results.length ? results.map(result => <Link className="search-result-card" key={`${result.kind}-${result.id}`} href={result.href}>{result.kind === "creator" ? <UserRound size={18} /> : result.kind === "hashtag" ? <Hash size={18} /> : <SearchIcon size={18} />}<span><small>{result.kind}</small><b>{result.title}</b>{result.description && <em>{result.description}</em>}</span></Link>) : <div className="empty-featured empty-featured--light"><SearchIcon size={30} /><h2>No public matches yet.</h2><p>Try a creator name, beat title, product, post, or hashtag.</p></div>}</div>}</div></section>;
 }

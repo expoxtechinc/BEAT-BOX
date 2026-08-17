@@ -7,6 +7,7 @@ import { SupabaseAuthProvider } from "./contexts/SupabaseAuthContext";
 import { trpc } from "./lib/trpc";
 import { supabase } from "./lib/supabase";
 import "./index.css";
+import "./styles/music-experience.css";
 
 const queryClient = new QueryClient();
 

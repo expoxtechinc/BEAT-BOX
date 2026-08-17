@@ -24,6 +24,7 @@ const Admin = lazy(async () => ({ default: (await import("@/pages/Dashboards")).
 const Community = lazy(() => import("@/pages/Community"));
 const Reels = lazy(() => import("./pages/Reels"));
 const SearchPage = lazy(() => import("./pages/Search"));
+const Charts = lazy(() => import("./pages/Charts"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MarketCatalog = lazy(() => import("@/pages/MarketCatalog"));
 const CreatorHub = lazy(() => import("@/pages/CreatorHub"));
@@ -53,6 +54,7 @@ function Router() {
         <Route path="/community" component={Community} />
         <Route path="/reels" component={Reels} />
         <Route path="/search" component={SearchPage} />
+        <Route path="/charts" component={Charts} />
         <Route path="/messages" component={Messages} />
         <Route path="/catalog" component={MarketCatalog} />
         <Route path="/discover" component={MarketCatalog} />

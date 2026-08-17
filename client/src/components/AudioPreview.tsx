@@ -29,6 +29,7 @@ export function AudioPreview({
   const [resolvedSrc, setResolvedSrc] = useState(src || null);
   const [streamState, setStreamState] = useState<"ready" | "loading" | "unavailable">(src ? "ready" : "loading");
   const [streamMessage, setStreamMessage] = useState<string | null>(null);
+  const playbackId = streamBeatId || engagementSubjectId;
 
   useEffect(() => {
     setResolvedSrc(src || null);
@@ -79,6 +80,16 @@ export function AudioPreview({
     await audio.play();
   };
 
+  useEffect(() => {
+    if (!playbackId) return;
+    const onToggleActivePlayback = (event: Event) => {
+      const detail = (event as CustomEvent<{ id?: string }>).detail;
+      if (detail?.id === playbackId) void toggle();
+    };
+    window.addEventListener("beatbox:toggle-active-playback", onToggleActivePlayback);
+    return () => window.removeEventListener("beatbox:toggle-active-playback", onToggleActivePlayback);
+  });
+
   const actionLabel = `${playing ? "Pause" : "Play full stream"} for ${title}`;
 
   return (
@@ -89,15 +100,20 @@ export function AudioPreview({
         preload="metadata"
         onPlay={() => {
           setPlaying(true);
+          if (playbackId) window.dispatchEvent(new CustomEvent("beatbox:playback", { detail: { id: playbackId, title, playing: true } }));
           if (engagementSubjectId && !playTracked.current) {
             playTracked.current = true;
             void recordEngagement("beat", engagementSubjectId, "play").catch(() => undefined);
           }
         }}
-        onPause={() => setPlaying(false)}
+        onPause={() => {
+          setPlaying(false);
+          if (playbackId) window.dispatchEvent(new CustomEvent("beatbox:playback", { detail: { id: playbackId, title, playing: false } }));
+        }}
         onEnded={() => {
           setPlaying(false);
           setProgress(0);
+          if (playbackId) window.dispatchEvent(new CustomEvent("beatbox:playback", { detail: { id: playbackId, title, playing: false } }));
         }}
         onError={() => {
           setPlaying(false);
