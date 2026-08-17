@@ -728,3 +728,15 @@
 - [x] Preserve the existing marketplace, social feed, creator profile, upload, secure-download, and private-messaging workflows while applying the visual upgrade
 - [x] Add regression tests and mobile/desktop visual verification for the music-app experience upgrade
 - [x] Checkpoint, commit, push, and verify the authorized GitHub and Vercel release for the music-app experience upgrade
+
+- [x] Audit the current beat detail route, audio stream source, play-count events, reactions, comments, creator profile, related content, and download entitlement controls
+- [x] Build an original BeatBox track hero with real cover art, visible waveform/progress visualization, seek/play controls, duration, and persistent playback state without exposing protected master files
+- [x] Add data-backed release actions for like, save/playlist, share, follow, and secure download or purchase/contact flow while preserving truthful counts and access permissions
+- [x] Add creator context, genre/tag metadata, release information, related releases, creator collections, support/follow affordances, and comments using existing real records only
+- [x] Improve the mobile header and bottom navigation for the listening context without copying Audiomack branding or proprietary assets
+- [x] Add regression coverage and responsive visual verification for playback, release actions, comments, and paid/free access behavior
+- [ ] Checkpoint, commit, push, and verify the authorized GitHub and Vercel release for the original BeatBox listening experience
+- [x] Do not copy Audiomack proprietary assets, branding, artwork, text, or user content; use original BeatBox UI and user-owned/publicly stored content instead
+
+## Release note
+- The supplied Audiomack screens are visual references only. BeatBox should implement comparable interaction patterns with its own dark/gold identity and truthful data.

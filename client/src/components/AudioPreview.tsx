@@ -11,6 +11,7 @@ type AudioPreviewProps = {
   engagementSubjectId?: string;
   publicPreview?: boolean;
   streamBeatId?: string;
+  waveform?: boolean;
 };
 
 export function AudioPreview({
@@ -20,6 +21,7 @@ export function AudioPreview({
   engagementSubjectId,
   publicPreview = true,
   streamBeatId,
+  waveform = false,
 }: AudioPreviewProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playTracked = useRef(false);
@@ -93,7 +95,7 @@ export function AudioPreview({
   const actionLabel = `${playing ? "Pause" : "Play full stream"} for ${title}`;
 
   return (
-    <div className={`audio-preview ${compact ? "audio-preview--compact" : ""}`} data-preview-access={publicPreview ? "guest" : "account"} data-beat-stream={resolvedSrc ? "available" : streamState}>
+    <div className={`audio-preview ${compact ? "audio-preview--compact" : ""} ${waveform ? "audio-preview--waveform" : ""}`} data-preview-access={publicPreview ? "guest" : "account"} data-beat-stream={resolvedSrc ? "available" : streamState}>
       <audio
         ref={audioRef}
         src={resolvedSrc || undefined}
