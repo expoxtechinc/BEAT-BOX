@@ -15,10 +15,14 @@ describe("BeatBox production readiness contracts", () => {
 
   it("keeps social persistence, secure media, and moderation actions connected", () => {
     const community = read("client/src/pages/Community.tsx");
-    for (const table of ["social_posts", "social_post_likes", "social_post_comments", "social_reposts", "social_post_bookmarks", "producer_follows", "social_friend_requests", "social_blocks", "social_mutes", "reports"]) expect(community).toContain(table);
+    const comments = read("client/src/components/CommentThread.tsx");
+    const actions = read("client/src/components/SocialActions.tsx");
+    for (const table of ["social_posts", "social_post_likes", "social_reposts", "social_post_bookmarks", "producer_follows", "social_friend_requests", "social_blocks", "social_mutes", "reports"]) expect(community).toContain(table);
+    expect(comments).toContain("social_post_comments");
+    expect(actions).toContain("social_post_reactions");
     expect(community).toContain("getPublicUrl");
     expect(community).toContain("profiles!social_posts_author_id_fkey");
-    expect(community).toContain("getFeedRange(page, pageSize)");
+    expect(community).toContain("getFeedRange(page, FEED_PAGE_SIZE)");
     expect(community).toContain('.eq("status", "published")');
   });
 

@@ -702,3 +702,20 @@
 - [x] Add truthful profile support details and direct call, WhatsApp, and email actions for BeatBox support at +231 889 792 996 and beatbox.contact@gmail.com
 - [x] Add native-feeling pull-to-refresh behavior to primary mobile discovery, community, profile, and account data views
 - [x] Add regression coverage, apply necessary production migrations and function deployment, validate mobile/desktop views, and synchronize the verified release to `expoxtechinc/BEAT-BOX` `main`
+
+## Advanced community media and engagement — release approval required
+
+- [x] Audit the current Community feed, post schema, media renderers, engagement events, audio controls, profile actions, storage policies, and mobile layout constraints
+- [x] Present the proposed media-card, real reaction, threaded comment, discovery-filter, and creator-support approach before major implementation
+- [x] Make every permitted community image, video, audio, product, beat, and text post visible in a consistent media card with accessible playback controls and artwork where available
+- [x] Add idempotent post reactions with truthful counts and a clear selected state, without inventing engagement or allowing duplicates
+- [x] Add secure, efficient threaded comments with author details, timestamps, ownership-safe edit/delete actions, and appropriate comment loading
+- [x] Improve community search and category filters for creator content, products/services, music, photos, videos, and posts while preserving the existing BeatBox navigation
+- [x] Add contextual creator-support actions such as follow, view profile, share, listen/watch, and eligible item purchase links without cluttering post cards
+- [x] Add regression coverage and local responsive verification; do not push, publish, deploy, or checkpoint this release until the user gives explicit approval
+- [x] Correct crowded creator headers, attachment metadata, action rows, and profile media tabs at narrow mobile widths without removing their functionality
+- [x] Ensure each community attachment card has bounded media dimensions, readable labels, visible playback affordances, and progressive disclosure rather than empty or oversized panels
+- [x] Await explicit release authorization before committing, checkpointing, pushing, or publishing the verified community-feed refinement
+- [ ] Create the authorized release checkpoint for the verified community-feed refinement
+- [ ] Commit and push the authorized community-feed refinement to `expoxtechinc/BEAT-BOX` `main`
+- [ ] Verify the Vercel deployment initiated from the updated `main` branch and report its ready status

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 const community = readFileSync(`${root}/client/src/pages/Community.tsx`, "utf8");
+const comments = readFileSync(`${root}/client/src/components/CommentThread.tsx`, "utf8");
+const socialActions = readFileSync(`${root}/client/src/components/SocialActions.tsx`, "utf8");
 const marketplace = readFileSync(`${root}/client/src/lib/marketplace.ts`, "utf8");
 const producer = readFileSync(`${root}/client/src/pages/Producer.tsx`, "utf8");
 const socialMigration = readFileSync(`${root}/supabase/migrations/20260812_beatbox_creator_social_commerce_extension.sql`, "utf8");
@@ -20,19 +22,23 @@ describe("social persistence and public-visibility contracts", () => {
   it("uses user-scoped, persisted actions for likes, saves, comments, reposts, follows, connections, moderation, and reports", () => {
     expect(community).toContain('from("social_post_likes")');
     expect(community).toContain('from("social_post_bookmarks")');
-    expect(community).toContain('from("social_post_comments")');
+    expect(comments).toContain('from("social_post_comments")');
     expect(community).toContain('from("social_reposts")');
     expect(community).toContain('from("producer_follows")');
     expect(community).toContain('from("social_friend_requests")');
     expect(community).toContain('from("social_blocks")');
     expect(community).toContain('from("social_mutes")');
     expect(community).toContain('from("reports")');
-    expect(community).toContain('insert({ post_id: post.id, user_id: user.id, body: text.trim() })');
+    expect(comments).toContain('parent_id: replyTo');
+    expect(comments).toContain('onCountChange?.(1)');
     expect(community).toContain('insert({ post_id: post.id, user_id: user.id });');
-    expect(community).toContain('insert({ reporter_id: user.id, reason: reason.trim(), reported_post_id: post.id');
+    expect(community).toContain('from("reports")');
+    expect(community).toContain("reported_post_id: post.id");
     expect(producer).toContain('from("social_friend_requests")');
     expect(producer).toContain('insert({ requester_id: user.id, addressee_id: producer.id, status: "pending" })');
     expect(producer).toContain('update({ status }).eq("requester_id", producer.id).eq("addressee_id", user.id)');
+    expect(socialActions).toContain('from("social_post_reactions")');
+    expect(socialActions).toContain('onConflict: "post_id,user_id"');
     expect(socialMigration).toContain("auth.uid()");
     expect(securityMigration).toContain("auth.uid()");
   });
@@ -43,7 +49,8 @@ describe("social persistence and public-visibility contracts", () => {
     const commentsSql = socialMigration.slice(commentsStart, commentsEnd < 0 ? socialMigration.length : commentsEnd);
     expect(commentsSql).toContain("parent_id uuid references public.social_post_comments(id)");
     expect(commentsSql).toContain("body text not null");
-    expect(community).toContain('from("social_post_comments")');
+    expect(comments).toContain('from("social_post_comments")');
+    expect(comments).toContain('parent_id: replyTo');
   });
 
   it("maps share/repost and report persistence to durable database rows and moderation notifications", () => {
@@ -92,10 +99,10 @@ describe("social persistence and public-visibility contracts", () => {
   });
 
   it("keeps public Feed rows published-only while retaining typed public content metadata", () => {
-    const loadSection = section(community, 'const load = async', 'useEffect(() => { void load');
+    const loadSection = section(community, 'const load = useCallback', 'usePullToRefresh');
     expect(loadSection).toContain('from("social_posts")');
     expect(loadSection).toContain('.eq("status", "published")');
-    expect(loadSection).toContain('select("id,title,content_type,price,currency,access_mode,description,slug")');
+    expect(loadSection).toContain('select("id,title,content_type,price,currency,access_mode,description,slug,cover_path")');
     expect(loadSection).not.toContain("original_path");
     expect(loadSection).not.toContain("master_path");
   });

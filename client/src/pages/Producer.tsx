@@ -4,6 +4,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { loadPublishedBeats } from "@/lib/marketplace";
 import type { Beat } from "@/lib/models";
 import { supabase } from "@/lib/supabase";
+import "@/styles/community.css";
 import { CheckCircle2, ExternalLink, Heart, Image as ImageIcon, Instagram, MapPin, MessageCircle, Music2, PlayCircle, UserCheck, UserMinus, UserPlus, UserRound, UserX, Youtube } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";

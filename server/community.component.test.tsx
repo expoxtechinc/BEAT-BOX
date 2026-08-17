@@ -15,7 +15,8 @@ const mocks = vi.hoisted(() => {
     chain.delete = vi.fn(() => chain);
     return chain;
   };
-  const supabaseMock = { from: vi.fn((table: string) => queryFor(table)), storage: { from: vi.fn() } };
+  const storageBucket = { getPublicUrl: vi.fn((path: string) => ({ data: { publicUrl: `https://media.example/${path}` } })) };
+  const supabaseMock = { from: vi.fn((table: string) => queryFor(table)), storage: { from: vi.fn(() => storageBucket) } };
   return { authState, state, supabaseMock };
 });
 const { authState, state, supabaseMock } = mocks;
@@ -88,5 +89,34 @@ describe("Community Feed component", () => {
     const likeButton = within(actionBar as HTMLElement).getAllByRole("button")[0];
     fireEvent.click(likeButton);
     await waitFor(() => expect(supabaseMock.from).toHaveBeenCalledWith("social_post_likes"));
+  });
+
+  it("presents public image, video, and audio attachments with visible media and inline engagement controls", async () => {
+    state.socialPosts = {
+      data: [{
+        ...publishedPost,
+        id: "media-post",
+        body: "Liberia sound check",
+        content_id: null,
+        media_gallery: [
+          { path: "photos/community.jpg", type: "image" },
+          { path: "videos/session.mp4", type: "video" },
+          { path: "audio/session.mp3", type: "audio" },
+        ],
+      }],
+      error: null,
+      pending: false,
+    };
+    render(<Community />);
+    expect((await screen.findAllByText("Liberia sound check")).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("button", { name: "Open community image" })).toBeTruthy();
+    expect(screen.getByText("Photo · Tap to expand")).toBeTruthy();
+    expect(screen.getByText("Play public video")).toBeTruthy();
+    expect(screen.getByText("Audio update")).toBeTruthy();
+    expect(screen.getByLabelText("Play full stream for Liberia sound check")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Open comments" }));
+    expect(await screen.findByLabelText("Comments")).toBeTruthy();
+    expect(await screen.findByText("No comments yet. Start the conversation.")).toBeTruthy();
   });
 });

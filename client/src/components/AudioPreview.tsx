@@ -1,7 +1,7 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { recordEngagement } from "@/lib/engagement";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./AudioPreview.css";
 
 type AudioPreviewProps = {
