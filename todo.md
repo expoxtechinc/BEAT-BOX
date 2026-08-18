@@ -740,3 +740,15 @@
 
 ## Release note
 - The supplied Audiomack screens are visual references only. BeatBox should implement comparable interaction patterns with its own dark/gold identity and truthful data.
+
+- [x] Audit the current user/profile/auth model, producer mode, engineering roles, upload routes, follow system, analytics events, and server-side authorization boundaries
+- [x] Define a truthful role taxonomy for Listener, Artist, Producer, Creator, and hybrid users, including a safe role-change policy and role-specific capabilities
+- [x] Add first-run onboarding that asks users to choose their role and lets them update their creator identity without blocking ordinary listening or marketplace use
+- [x] Enforce artist/creator/producer publishing permissions on the server while retaining guest playback, protected downloads, and existing marketplace rules
+- [x] Add role-aware creator profiles with bio, avatar/cover, genres, social/contact links, release shelves, follower actions, and professional-mode entry points
+- [x] Add artist publishing workflow for music releases with artwork, metadata, full-stream playback, visibility controls, and upload progress while keeping master files private
+- [x] Add creator follow/discovery improvements, truthful follower and release analytics, saved releases, notifications, and shareable creator/release links
+- [x] Add practical creator growth features: profile completeness guidance, release scheduling readiness, catalog organization, moderation/reporting access, and verification-request workflow without fabricating verification
+- [x] Add regression tests for role onboarding, server authorization, artist publishing, follows, analytics, and responsive creator UX
+- [ ] Checkpoint, commit, push, and verify the authorized GitHub and Vercel release for the role-based creator upgrade
+- [x] Keep all role labels, permissions, follower counts, analytics, and verification states truthful; do not create fake users, metrics, reviews, or endorsements

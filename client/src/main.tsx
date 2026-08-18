@@ -8,6 +8,7 @@ import { trpc } from "./lib/trpc";
 import { supabase } from "./lib/supabase";
 import "./index.css";
 import "./styles/music-experience.css";
+import "./styles/creator-roles.css";
 
 const queryClient = new QueryClient();
 

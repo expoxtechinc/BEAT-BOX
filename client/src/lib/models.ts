@@ -22,6 +22,10 @@ export type Profile = {
   role: UserRole | null;
   account_status: "active" | "suspended" | "banned" | null;
   professional_mode?: boolean | null;
+  creator_roles?: Array<"listener" | "artist" | "producer" | "creator">;
+  primary_creator_role?: "listener" | "artist" | "producer" | "creator" | null;
+  creator_genres?: string[];
+  creator_onboarding_completed?: boolean | null;
 };
 
 export type Beat = {
