@@ -750,8 +750,8 @@
 - [x] Add creator follow/discovery improvements, truthful follower and release analytics, saved releases, notifications, and shareable creator/release links
 - [x] Add practical creator growth features: profile completeness guidance, release scheduling readiness, catalog organization, moderation/reporting access, and verification-request workflow without fabricating verification
 - [x] Add regression tests for role onboarding, server authorization, artist publishing, follows, analytics, and responsive creator UX
-- [ ] Checkpoint, commit, push, and verify the authorized GitHub and Vercel release for the role-based creator upgrade
+- [x] Checkpoint, commit, push, and verify the authorized GitHub and Vercel release for the role-based creator upgrade
 - [x] Keep all role labels, permissions, follower counts, analytics, and verification states truthful; do not create fake users, metrics, reviews, or endorsements
 
-- [ ] Recheck the final `sastechorg-beatbox` Vercel deployment for the pushed creator-role commit and confirm a terminal ready state
-- [ ] Push any remaining tracked release-state changes to `expoxtechinc/BEAT-BOX` main and leave the working tree synchronized
+- [x] Recheck the final `sastechorg-beatbox` Vercel deployment for the pushed creator-role commit and confirm a terminal ready state
+- [x] Push any remaining tracked release-state changes to `expoxtechinc/BEAT-BOX` main and leave the working tree synchronized
